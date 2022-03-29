@@ -1,7 +1,7 @@
-'use strict';
+'use strict'
 const {
   Model
-} = require('sequelize');
+} = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
   class MemGroup extends Model {
     /**
@@ -20,6 +20,6 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     tableName: 'memgroups',
     modelName: 'MemGroup',
-  });
-  return MemGroup;
-};
+  })
+  return MemGroup
+}

@@ -1,0 +1,22 @@
+const OPTIONS = {
+    "CHECK_IN_MEAL": "CHECK IN MEAL",
+    "CHECK_OUT_MEAL": "CHECK OUT MEAL",
+    "CHECK_IN_SMOKING": "CHECK IN SMOKING",
+    "CHECK_OUT_SMOKING": "CHECK OUT SMOKING",
+    "CHECK_IN_RESTROOM": "CHECK IN RESTROOM",
+    "CHECK_OUT_RESTROOM": "CHECK OUT RESTROOM",
+    "DAY_OFF":"DAY OFF",
+    "CHECK_IN":"CHECKIN",
+    "CHECK_OUT":"CHECKOUT",
+    "DAY_OFF_WORK":"DAYOFF",
+    "MEAL":"MEAL"
+}
+// decentralization of authority
+const AUTHORITY = {
+    "EMPLOYEE" : "EMPLOYEE"
+}
+
+module.exports = {
+    OPTIONS,
+    AUTHORITY
+}

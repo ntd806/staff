@@ -1,4 +1,6 @@
-'use strict';
+'use strict'
+var {AUTHORITY} =  require('../const/const')
+
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Users', {
@@ -39,7 +41,7 @@ module.exports = {
       role: {
         type: Sequelize.STRING,
         allowNull: false,
-        defaultValue: 'EMPLOYEE'
+        defaultValue: AUTHORITY.EMPLOYEE
       },
       phone: {
         type: Sequelize.STRING,
@@ -87,9 +89,9 @@ module.exports = {
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP')
       }
-    });
+    })
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Users');
+    await queryInterface.dropTable('Users')
   }
-};
+}
