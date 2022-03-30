@@ -11,6 +11,10 @@ const TelegramBot = require('node-telegram-bot-api')
 const token = '5214511809:AAF8ILPcc4egPEHAvJ86B3N3s-q-epIirRg'
 const bot = new TelegramBot(token, {polling: true})
 require('./bot/Telegram/messages')(bot) // Telegram Bot
+const passport = require('passport');
+require('./auth/auth');
+const routes = require('./service/user/UserRouter');
+const secureRoute = require('./routes/secure-routes');
 
 const options = {
   definition: {
@@ -49,6 +53,10 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 app.use(cookieParser())
 app.use(express.static(path.join(__dirname, 'public')))
+
+app.use('/', routes);
+// Plug in the JWT strategy as a middleware so only verified users can access this route.
+app.use('/user', passport.authenticate('jwt', { session: false }), secureRoute);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

@@ -1,6 +1,4 @@
 'use strict'
-var bcrypt = require('bcrypt');
-
 const {
   Model
 } = require('sequelize')
@@ -20,17 +18,12 @@ module.exports = (sequelize, DataTypes) => {
     toJSON() {
       return { ...this.get(), id: undefined }
     }
-
-    async isValidPassword(password) {
-      const compare = await bcrypt.compare(password, this.password);
-    
-      return compare;
-    }
   }
   User.init({
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
-    email: DataTypes.STRING
+    email: DataTypes.STRING,
+    password: DataTypes.STRING
   }, {
     sequelize,
     tableName: 'users',
