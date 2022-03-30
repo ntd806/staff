@@ -44,12 +44,17 @@ module.exports = function Chat(bot) {
 								['createdAt', 'DESC'],
 							],
 						  })
-						const yesterday = new Date(MSG.createdAt)
-						const today = new Date(checkOut.createdAt)
 
-						let consume = date.subtract(today, yesterday).toMinutes()
-						bot.sendMessage(msg.chat.id,'User '+message.employeeId + ' ' +message.preAction+ ' ' + message.action + ' succesfully\n'+ 'Duration: ' + consume. toFixed(3) + '\n' + 'At: ' + date.format(now, 'YYYY-MM-DD HH:mm:ss GMT+08:00'))
-						//console.log(MSG)
+						if (!MSG) {
+							bot.sendMessage(msg.chat.id,'You have not checked in today')
+						}else{
+							const yesterday = new Date(MSG.createdAt)
+							const today = new Date(checkOut.createdAt)
+							let consume = date.subtract(today, yesterday).toMinutes()
+							bot.sendMessage(msg.chat.id,'User '+message.employeeId + ' ' +message.preAction+ ' ' + message.action + ' succesfully\n'+ 'Duration: ' + consume. toFixed(3) + '\n' + 'At: ' + date.format(now, 'YYYY-MM-DD HH:mm:ss GMT+08:00'))
+							//console.log(MSG)
+						}
+						
 					} catch (err) {
 						console.log(err)
 					}
