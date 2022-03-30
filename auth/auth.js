@@ -29,7 +29,7 @@ passport.use(
       },
       async (email, password, done) => {
         try {
-            const user = await UserService.signUp({ email, password });
+            const user = await UserService.preSignUp({ email, password });
   
           return done(null, user);
         } catch (error) {

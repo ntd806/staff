@@ -1,48 +1,16 @@
 const express = require('express');
+const UserService = require('./UserService');
 const passport = require('passport');
-const jwt = require('jsonwebtoken');
 const router = express.Router();
 
-router.post(
-    '/signup',
-    passport.authenticate('signup', { session: false }),
-    async (req, res, next) => {
-      res.json({
-        message: 'Signup successful',
-        user: req.user
-      });
-    }
-  );
-
-router.post(
-'/login',
+router.post('/signup', passport.authenticate('signup', { session: false }),
 async (req, res, next) => {
-    passport.authenticate(
-    'login',
-    async (err, user, info) => {
-        try {
-        if (err || !user) {
-            return res.json({ message: 'Wrong password or username' });
-        }
+  res.json({
+    message: 'Signup successful',
+    user: req.user
+  });
+});
 
-        req.login(
-            user,
-            { session: false },
-            async (error) => {
-            if (error) return next(error);
-
-            const body = { _id: user._id, email: user.email };
-            const token = jwt.sign({ user: body }, 'TOP_SECRET');
-
-            return res.json({ token });
-            }
-        );
-        } catch (error) {
-        return next(error);
-        }
-    }
-    )(req, res, next);
-}
-);
+router.post('/login', UserService.login);
 
 module.exports = router;

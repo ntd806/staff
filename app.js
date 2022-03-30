@@ -14,7 +14,7 @@ require('./bot/Telegram/messages')(bot) // Telegram Bot
 const passport = require('passport');
 require('./auth/auth');
 const routes = require('./service/user/UserRouter');
-const secureRoute = require('./routes/secure-routes');
+const secureRoute = require('./service/api/AdminRouter');
 
 const options = {
   definition: {
