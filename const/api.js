@@ -1,9 +1,21 @@
 const API = {
     "SUCCESS":"Success",
+    "UPDATE_FAILED": {
+        "MESSAGE": {
+            "TEXT": "Update failed internal error",
+            "CODE": 10399
+        }
+    },
+    "CREATE_FAILED": {
+        "MESSAGE": {
+            "TEXT": "Create failed internal error",
+            "CODE": 10400
+        }
+    },
     "DELETE_FAILED": {
         "MESSAGE": {
             "TEXT": "Delete failed internal error",
-            "CODE": "10401"
+            "CODE": 10401
         }
     },
     "NOT_FOUND": {
