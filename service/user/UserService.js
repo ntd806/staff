@@ -27,7 +27,7 @@ async function login (req, res, next){
             const body = {email: user.email };
             const token = jwt.sign({ user: body }, 'TOP_SECRET');
 
-            return res.json({ token });
+            return res.json({ token , email: user.email});
             }
         );
         } catch (error) {

@@ -23,16 +23,21 @@ async function profile(req, res, next) {
 }
 
 async function detele(req, res, next){
+    let email = req.body.email
+    const user = await User.findOne({ 
+        email: email,
+        attributes: {
+            exclude: ['password']
+        }
+    })
 
-    let user = User.findOne({id})
-
-    if(user.role == AUTHORITY.EMPLOYEE){
+    if(user.role === AUTHORITY.EMPLOYEE){
         res.json({
             message: "You do not have a permission",
             code: 401,
         })
     }
-
+    
     try {
         const id = req.body.userId
         const count = await User.destroy({
