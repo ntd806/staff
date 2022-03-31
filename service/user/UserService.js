@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 var {API} =  require('../../const/api')
 
 async function isValidPassword({ user, password }){
-    return await bcrypt.compare(password, user.password, 10);
+    return await bcrypt.compare(password, user.password);
 }
 
 async function login (req, res, next){
@@ -15,7 +15,7 @@ async function login (req, res, next){
         try {
         if (err || !user) {
             console.log(err);
-            // return res.json({ message: 'Wrong password or username' });
+            return res.json({ message: 'Wrong password or username' });
         }
 
         req.login(
@@ -24,7 +24,7 @@ async function login (req, res, next){
             async (error) => {
             if (error) return next(error);
 
-            const body = {username: user.username };
+            const body = {email: user.email };
             const token = jwt.sign({ user: body }, 'TOP_SECRET');
 
             return res.json({ token });
@@ -41,8 +41,8 @@ async function login (req, res, next){
 async function signup(req, res, done){
     try {
         let password = await bcrypt.hash(req.body.password, 10)
-        let {username, employeeId, depId, role} = req.body
-        var user = await User.create({ username, password, username, employeeId, depId, role })
+        let {email, employeeId, depId, role} = req.body
+        var user = await User.create({ email, password, employeeId, depId, role })
 
         if (!user) {
             res.json({

@@ -25,7 +25,7 @@ passport.use(
     new localStrategy(
       {
         usernameField: 'email',
-        pwField: 'password'
+        passwordField: 'password'
       },
       async (email, password, done) => {
         try {
@@ -46,7 +46,7 @@ passport.use(
     new localStrategy(
       {
         usernameField: 'email',
-        pwField: 'password'
+        passwordField: 'password'
       },
       async (email, password, done) => {
         try {
@@ -56,7 +56,6 @@ passport.use(
             return done(null, false, { message: 'User not found' });
           }
           const validate = await UserService.isValidPassword({user, password});
-          console.log(validate);
   
           if (!validate) {
             return done(null, false, { message: 'Wrong password' });
