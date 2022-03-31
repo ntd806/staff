@@ -1,4 +1,6 @@
-const {User, Sequelize} = require('../../models')
+const express = require('express');
+const router = express.Router();
+module.exports = router;const {User, Sequelize} = require('../../models')
 var {API} =  require('../../const/api')
 var {AUTHORITY} =  require('../../const/const')
 const Op = Sequelize.Op;
