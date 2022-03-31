@@ -87,6 +87,7 @@ async function edit(req, res, next){
         
         const user = await User.update(
             {
+                id,
                 firstName,
                 lastName,
                 employeeId,
