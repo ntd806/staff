@@ -126,8 +126,17 @@ async function edit(req, res, next){
 }
 
 async function search(req, res, next){
+    let limit = 10
+    let offset = 0
+
+    if(req.body.offset) {
+        offset = req.body.offset
+    }
+
     try {
-        let user =  await User.findAll({
+        let user =  await User.findAndCountAll({
+            limit: limit,
+            offset: offset,
             where: {
                 [Op.or]: {
                     lastName: {
@@ -176,10 +185,40 @@ async function getDetail(req, res, next){
     }
 }
 
+async function getList(req, res, next){
+    let limit = 10
+    let offset = 0
+
+    if(req.body.offset) {
+        offset = req.query.offset
+    }
+
+    try {
+        let user =  await User.findAndCountAll({
+            limit: limit,
+            offset: offset,
+            where: {
+           },
+           attributes: {
+            exclude: ['password']
+           }
+        })
+
+        res.json({
+            message: API.SUCCESS,
+            data: {user},
+            code: 200,
+        })
+    } catch (error) {
+        return next(error);
+    }
+}
+
 module.exports = {
     profile,
     detele,
     edit,
     search,
-    getDetail
+    getDetail,
+    getList
 }

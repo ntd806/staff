@@ -7,5 +7,6 @@ router.get('/getDetail', AminService.getDetail);
 router.post('/detele', AminService.detele);
 router.post('/edit', AminService.edit);
 router.post('/search', AminService.search);
+router.get('/getList', AminService.getList);
 
 module.exports = router;
