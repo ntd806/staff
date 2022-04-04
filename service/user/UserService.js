@@ -8,6 +8,33 @@ async function isValidPassword({ user, password }){
     return await bcrypt.compare(password, user.password);
 }
 
+/**
+*  @swagger
+*    /login:
+*      post:
+*        tags:
+*        - "login"
+*        summary: "Add a new pet to the store"
+*        description: ""
+*        operationId: "addPet"
+*        consumes:
+*        - "application/xml"
+*        produces:
+*        - "application/json"
+*        parameters:
+*        - in: "body"
+*          name: "body"
+*          description: "Pet object that needs to be added to the store"
+*          required: true
+*          schema:
+*        responses:
+*          "405":
+*            description: "Invalid input"
+*        security:
+*        - petstore_auth:
+*          - "write:pets"
+*          - "read:pets"
+*/
 async function login (req, res, next){
     passport.authenticate(
     'login',

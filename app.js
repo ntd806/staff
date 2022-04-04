@@ -37,6 +37,20 @@ const options = {
         url: "http://localhost:3000/",
       },
     ],
+    components: {
+      securitySchemes: {
+        jwt: {
+          type: "http",
+          scheme: "bearer",
+          in: "header",
+          bearerFormat: "JWT"
+        },
+      }
+    }
+    ,
+    security: [{
+      jwt: []
+    }],
   },
   apis: ["./service/*/*.js"],
 }
