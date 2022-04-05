@@ -1,7 +1,6 @@
 'use strict'
 const {OPTIONS} =  require('../const/const')
 
-
 const {
   Model
 } = require('sequelize')
