@@ -9,32 +9,28 @@ async function isValidPassword({ user, password }){
 }
 
 /**
-*  @swagger
-*    /login:
-*      post:
-*        tags:
-*        - "login"
-*        summary: "Add a new pet to the store"
-*        description: ""
-*        operationId: "addPet"
-*        consumes:
-*        - "application/xml"
-*        produces:
-*        - "application/json"
-*        parameters:
-*        - in: "body"
-*          name: "body"
-*          description: "Pet object that needs to be added to the store"
-*          required: true
-*          schema:
-*        responses:
-*          "405":
-*            description: "Invalid input"
-*        security:
-*        - petstore_auth:
-*          - "write:pets"
-*          - "read:pets"
-*/
+ * @swagger
+ * paths:
+ *   /login:
+ *    post:
+ *      summary: generates token
+ *      description: ''
+ *      consumes:
+ *        - application/x-www-form-urlencoded
+ *      parameters:
+ *         - name: email
+ *           type: string
+ *           in: formData
+ *           default: test@gmail.com
+ *         - name: password
+ *           type: string
+ *           in: formData
+ *           default: 123456
+ *      responses:
+ *        '200':
+ *          description: Sample response
+ * 
+ */
 async function login (req, res, next){
     passport.authenticate(
     'login',
@@ -51,8 +47,8 @@ async function login (req, res, next){
             async (error) => {
             if (error) return next(error);
 
-            const body = {email: user.email };
-            const token = jwt.sign({ user: body }, 'TOP_SECRET');
+            const body = {email: user.email};
+            const token = jwt.sign({ user: body }, process.env.SECRET_KEY);
 
             return res.json({ token , email: user.email});
             }
@@ -64,9 +60,39 @@ async function login (req, res, next){
     )(req, res, next);
 }
 
-
+/**
+ * @swagger
+ * paths:
+ *   /signup:
+ *    post:
+ *      summary: generates token
+ *      description: ''
+ *      type: object
+ *      consumes:
+ *        - application/x-www-form-urlencoded
+ *      parameters:
+ *         - name: email
+ *           type: string
+ *           in: formData
+ *           default: test@gmail.com
+ *         - name: password
+ *           type: string
+ *           in: formData
+ *           default: 123456
+ *         - name: role
+ *           type: string
+ *           in: formData
+ *           default: CUSTOMER
+ *         - name: employeeId
+ *         - name: depId
+ *      responses:
+ *        '200':
+ *          description: Sample response
+ * 
+ */
 async function signup(req, res, done){
     try {
+        console.log(req.body.password)
         let password = await bcrypt.hash(req.body.password, 10)
         let {email, employeeId, depId, role} = req.body
         var user = await User.create({ email, password, employeeId, depId, role })

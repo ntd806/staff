@@ -7,7 +7,7 @@ const {User} = require('../models');
 passport.use(
     new JWTstrategy(
       {
-        secretOrKey: 'TOP_SECRET',
+        secretOrKey: process.env.SECRET_KEY,
         jwtFromRequest: ExtractJWT.fromHeader('secret_token')
       },
       async (token, done) => {
