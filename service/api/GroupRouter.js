@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const GroupService = require('./GroupService');
 
-router.get('/group/getDetail', GroupService.getDetail);
-router.post('/group/detele', GroupService.detele);
-router.post('/group/edit', GroupService.edit);
-router.post('/group/search', GroupService.search);
-router.get('/group/getList', GroupService.getList);
+router.post('/add', GroupService.add);
+router.get('/getDetail', GroupService.getDetail);
+router.post('/detele', GroupService.detele);
+router.post('/edit', GroupService.edit);
+router.post('/search', GroupService.search);
+router.get('/getList', GroupService.getList);
 
 module.exports = router;
