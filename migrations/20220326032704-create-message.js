@@ -7,8 +7,12 @@ module.exports = {
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
-      }, employeeId: {
-        type: Sequelize.DOUBLE,
+      },
+      employeeId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      }, status: {
+        type: Sequelize.INTEGER,
         allowNull: false,
       },
       action: {

@@ -1,4 +1,7 @@
 'use strict'
+const {OPTIONS} =  require('../const/const')
+
+
 const {
   Model
 } = require('sequelize')
@@ -36,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
         notEmpty: { msg: 'preAction must not be empty' },
       },
     },
+
     action: {
       type: DataTypes.STRING,
       allowNull: false,
@@ -47,6 +51,19 @@ module.exports = (sequelize, DataTypes) => {
     employeeId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      validate: {
+        notNull: { msg: 'Message must have a employeeId' },
+        notEmpty: { msg: 'employeeId must not be empty' },
+      },
+    },
+    status: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: OPTIONS.WAIT,
+      validate: {
+        notNull: { msg: 'Message must have a status' },
+        notEmpty: { msg: 'status must not be empty' },
+      },
     },
   }, {
     sequelize,

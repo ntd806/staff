@@ -9,7 +9,9 @@ const OPTIONS = {
     "CHECK_IN":"CHECKIN",
     "CHECK_OUT":"CHECKOUT",
     "DAY_OFF_WORK":"DAYOFF",
-    "MEAL":"MEAL"
+    "MEAL":"MEAL",
+    "WAIT": 1,
+    "DONE": 0,
 }
 // decentralization of authority
 const AUTHORITY = {

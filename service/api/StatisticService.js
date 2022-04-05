@@ -1,32 +1,31 @@
+const {Status} = require('../../models');
 
-const express = require('express');
-const router = express.Router();
-module.exports = router;
+async function getAllStatus(req, res, next){
+    let limit = 10
+    let offset = 0
 
-function add(req, res, next){
+    if(req.body.offset) {
+        offset = req.query.offset
+    }
 
-}
+    try {
+        let user =  await Status.findAndCountAll({
+            limit: limit,
+            offset: offset,
+            where: {
+           }
+        })
 
-function detele(req, res, next){
-
-}
-
-function edit(req, res, next){
-
-}
-
-function search(req, res, next){
-
-}
-
-function getList(req, res, next){
-
+        res.json({
+            message: API.SUCCESS,
+            data: {user},
+            code: 200,
+        })
+    } catch (error) {
+        return next(error);
+    }
 }
 
 module.exports = {
-    add,
-    detele,
-    edit,
-    search,
-    getList
+    getAllStatus
 }

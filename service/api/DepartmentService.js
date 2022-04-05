@@ -1,6 +1,6 @@
 const {Department, Sequelize} = require('../../models')
 const checkPermission = require('./PermissionService')
-var {API} =  require('../../const/api')
+const {API} =  require('../../const/api')
 const Op = Sequelize.Op
 
 async function add(req, res, next){
