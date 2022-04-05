@@ -93,10 +93,9 @@ async function login (req, res, next){
  */
 async function signup(req, res, done){
     try {
-        console.log(req.body.password)
         let password = await bcrypt.hash(req.body.password, 10)
-        let {email, employeeId, depId, role} = req.body
-        var user = await User.create({ email, password, employeeId, depId, role })
+        let {email, employeeId, depId} = req.body
+        var user = await User.create({ email, password, employeeId, depId })
 
         if (!user) {
             res.json({
