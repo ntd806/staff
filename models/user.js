@@ -1,5 +1,4 @@
 'use strict'
-var {AUTHORITY} =  require('../const/const')
 
 const {
   Model

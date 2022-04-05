@@ -15,6 +15,7 @@ const passport = require('passport');
 require('./auth/auth');
 const routes = require('./service/user/UserRouter');
 const secureRoute = require('./service/api/AdminRouter');
+const departmentRoute = require('./service/api/DepartmentRouter');
 
 const options = {
   definition: {
@@ -70,7 +71,8 @@ app.use(express.static(path.join(__dirname, 'public')))
 
 app.use('/', routes);
 // Plug in the JWT strategy as a middleware so only verified users can access this route.
-app.use('/user', passport.authenticate('jwt', { session: false }), secureRoute);
+app.use('/api/user', passport.authenticate('jwt', { session: false }), secureRoute);
+app.use('/api/depart', passport.authenticate('jwt', { session: false }), departmentRoute);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

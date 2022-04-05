@@ -1,7 +1,7 @@
 const {User, Sequelize} = require('../../models')
 var {API} =  require('../../const/api')
-var {AUTHORITY} =  require('../../const/const')
-const Op = Sequelize.Op;
+const Op = Sequelize.Op
+const checkPermission = require('./PermissionService')
 
 async function profile(req, res, next) {
     try{
@@ -24,21 +24,9 @@ async function profile(req, res, next) {
 }
 
 async function detele(req, res, next){
-    let email = req.body.email
-    const user = await User.findOne({ 
-        email: email,
-        attributes: {
-            exclude: ['password']
-        }
-    })
 
-    if(user.role === AUTHORITY.EMPLOYEE){
-        res.json({
-            message: "You do not have a permission",
-            code: 401,
-        })
-    }
-    
+    checkPermission.checkPermission(req, res, next)
+
     try {
         const id = req.body.userId
         const count = await User.destroy({
@@ -88,7 +76,6 @@ async function edit(req, res, next){
         
         const user = await User.update(
             {
-                id,
                 firstName,
                 lastName,
                 employeeId,

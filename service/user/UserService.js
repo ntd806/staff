@@ -2,7 +2,8 @@ const bcrypt = require('bcrypt');
 const {User} = require('../../models');
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
-var {API} =  require('../../const/api')
+const {API} =  require('../../const/api')
+
 
 async function isValidPassword({ user, password }){
     return await bcrypt.compare(password, user.password);
