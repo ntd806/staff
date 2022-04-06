@@ -38,16 +38,16 @@ function checkTime(action){
 
 	switch(action){
 		case 'EAT':
-			time = 30*1000*60
+			time = 1805000
 		    break
 		case 'SMK':
-			time = 10*1000*60
+			time = 605000
 			break
 	    case 'DWC':
-			time = 15*1000*60
+			time = 905000
 			break
 		case 'WC':
-			time = 3*1000*60
+			time = 185000
 			break
 		default:
 		    break
@@ -60,7 +60,10 @@ function checkTime(action){
 module.exports = function Chat(bot) {
 	bot.on('message', async (msg) => {
 		let arr = Helper.checkSyntax(msg.text.toString(), '_')
-        let time = checkTime(arr[2].toUpperCase());
+		let time = 0;
+		if (arr[2]) {
+			time = checkTime(arr[2].toUpperCase());
+		}
 
         if(Helper.checkLength(arr, 1) == false && Helper.checkLength(arr, 3) == false) {
 			bot.sendMessage(msg.chat.id, help, keyBoard())
@@ -82,9 +85,27 @@ module.exports = function Chat(bot) {
 					try {
 						const MSG = await Message.create(checkin)
 						bot.sendMessage(msg.chat.id, notice(checkin))
-						const myTimeout = setTimeout(()=>{
-							bot.sendMessage(msg.chat.id, 'Mã ID ' +checkin.employeeId + "\nĐi "+checkin.action +" " + OVERTIME)
-							clearTimeout(myTimeout)
+						const myTimeout = setTimeout( async()=>{
+							const MSG = await Message.findOne({
+								offset: 0, limit: 1,
+								where: {"employeeId":checkin.employeeId, "preAction":"CHECKIN", 'action': checkin.action, "status": OPTIONS.WAIT},
+								order: [
+									['createdAt', 'DESC'],
+								],
+							  })
+
+							if(MSG) {
+								MSG.update({status:OPTIONS.DONE})
+								const data = {
+									"employeeId": checkin.employeeId,
+									"action": checkin.action,
+									"total": ((time/1000)/60)
+								}
+								const status = Status.create(data)
+								bot.sendMessage(msg.chat.id, 'Mã ID ' +checkin.employeeId + "\nĐi "+checkin.action +" " + OVERTIME)
+								clearTimeout(myTimeout)
+							}
+
 						}, time)
 
 					} catch (err) {
@@ -114,6 +135,7 @@ module.exports = function Chat(bot) {
 						if (!MSG) {
 							bot.sendMessage(msg.chat.id, cannotback)
 						}else{
+							MSG.update({status:OPTIONS.DONE})
 							const yesterday = new Date(MSG.createdAt)
 							const today = new Date(checkOut.createdAt)
 							let consume = date.subtract(today, yesterday).toMinutes()
@@ -123,9 +145,7 @@ module.exports = function Chat(bot) {
 								"total": consume.toFixed(3)
 							}
 							const status = Status.create(data)
-
 							bot.sendMessage(msg.chat.id, notice(checkout))
-							//console.log(MSG)
 						}
 						
 					} catch (err) {
