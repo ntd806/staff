@@ -2,6 +2,7 @@ var Helper =  require('../../helper/helper')
 var {OPTIONS} =  require('../../const/const')
 var {Message, Status} =  require('../../models')
 const date = require('date-and-time')
+const StatisticService = require('../../StatisticService');
 const welcome = "Xin vui lòng nhắn tin với cú pháp"
 const help = "Tôi có thể giúp gì cho bạn!"
 const cannotback = "Bạn không thể về chỗ khi chưa gửi tin ra ngoài"
