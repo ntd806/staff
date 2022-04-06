@@ -25,8 +25,9 @@ function  keyBoard(){
 
 function notice(data){
 	const now = new Date()
+    const user = User.findOne({"employeeId": data.employeeId})
 
-	return 'Mã ID '+data.employeeId + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'+ ' lúc '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00');
+	return 'Nhân viên '+ user.dataValues.employeeId + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'+ ' lúc '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00');
 }
 
 function answerAction(action){
