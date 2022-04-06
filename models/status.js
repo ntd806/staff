@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   }
   Status.init({
     action: DataTypes.STRING,
-    total: DataTypes.INTEGER,
+    total: DataTypes.FLOAT,
     employeeId: {
       type: DataTypes.INTEGER,
       allowNull: false,

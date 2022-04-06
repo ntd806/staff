@@ -1,57 +1,130 @@
 var Helper =  require('../../helper/helper')
 var {OPTIONS} =  require('../../const/const')
-var {Message, Dayoff} =  require('../../models')
+var {Message, Status} =  require('../../models')
 const date = require('date-and-time')
+const welcome = "Xin vui lòng nhắn tin với cú pháp"
+const help = "Tôi có thể giúp gì cho bạn!"
+const cannotback = "Bạn không thể về chỗ khi chưa gửi tin ra ngoài"
+const CheckinEAT = "Checkin_Mã nhân viên_EAT"
+const CheckoutEAT = "Checkout_Mã nhân viên_EAT"
+const CheckinSMK = "Checkin_Mã nhân viên_SMK"
+const CheckoutSMK = "Checkout_Mã nhân viên_SMK" 
+const CheckinWC = "Checkin_Mã nhân viên_WC" 
+const CheckoutWC = "Checkout_Mã nhân viên_WC"
+const CheckoutDWC = "Checkin_Mã nhân viên_DWC"
+const CheckinDWC = "Checkout_Mã nhân viên_DWC"
+const OVERTIME = "vượt quá thời gian quy định"
+
+function  keyBoard(){
+	return {
+		"reply_markup": {
+		"keyboard": [["Đi (EAT)", 'Về chỗ (EAT)'], ["Đi (SMK)", 'Về chỗ (SMK)'], ["Đi (WC)", 'Về chỗ (WC)'], ["Đi (DWC)", 'Về chỗ (DWC)']]
+		}
+	}
+}
+
+function notice(data){
+	const now = new Date()
+
+	return 'Mã ID '+data.employeeId + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'+ ' lúc '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00');
+}
+
+function answerAction(action){
+	return welcome+" \n " + action;
+}
+
+function checkTime(action){
+	let time = 0
+
+	switch(action){
+		case 'EAT':
+			time = 30*1000*60
+		    break
+		case 'SMK':
+			time = 10*1000*60
+			break
+	    case 'DWC':
+			time = 15*1000*60
+			break
+		case 'WC':
+			time = 3*1000*60
+			break
+		default:
+		    break
+	}
+
+	return time;
+}
+
 
 module.exports = function Chat(bot) {
 	bot.on('message', async (msg) => {
 		let arr = Helper.checkSyntax(msg.text.toString(), '_')
-        const now = new Date()
+        let time = checkTime(arr[2].toUpperCase());
 
-        if(Helper.checkLength(arr, 1) == false && Helper.checkLength(arr, 3) == false && Helper.checkLength(arr, 7) == false) {
-			bot.sendMessage(msg.chat.id, "How can I help you!", {
-				"reply_markup": {
-					"keyboard": [["Check in Meal", 'Check out Meal'], ["Check in Smoking", 'Check out Smoking'], ["Check in Restroom", 'Check out Restroom'], ['Day off']]
-					}
-			})
+        if(Helper.checkLength(arr, 1) == false && Helper.checkLength(arr, 3) == false) {
+			bot.sendMessage(msg.chat.id, help, keyBoard())
 		}
 
 		if (Helper.checkLength(arr, 3)){
-			const message = {
-				"employeeId": arr[1],
-				"note": "no note",
-				"preAction": arr[0].toUpperCase(),
-				"action": arr[2].toUpperCase()
-			}
 	        
-			switch(message.preAction){
+			switch(arr[0].toUpperCase()){
 				case OPTIONS.CHECK_IN:
+
+					const checkin = {
+						"employeeId": arr[1],
+						"note": "no note",
+						"preAction": arr[0].toUpperCase(),
+						"action": arr[2].toUpperCase(),
+						"status": OPTIONS.WAIT,
+					}
+
 					try {
-						const MSG = await Message.create(message)
-						bot.sendMessage(msg.chat.id,'User '+message.employeeId + ' ' +message.preAction+ ' ' + message.action + ' succesfully\n'+ ' At '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00'))
-						// console.log(MSG)
+						const MSG = await Message.create(checkin)
+						bot.sendMessage(msg.chat.id, notice(checkin))
+						const myTimeout = setTimeout(()=>{
+							bot.sendMessage(msg.chat.id, 'Mã ID ' +checkin.employeeId + "\nĐi "+checkin.action +" " + OVERTIME)
+							clearTimeout(myTimeout)
+						}, time)
+
 					} catch (err) {
 						console.log(err)
 					}
 					break
 				case OPTIONS.CHECK_OUT:
+
+					const checkout = {
+						"employeeId": arr[1],
+						"note": "no note",
+						"preAction": arr[0].toUpperCase(),
+						"action": arr[2].toUpperCase(),
+						"status": OPTIONS.DONE,
+					}
+
 					try {
-						const checkOut = await Message.create(message)
+						const checkOut = await Message.create(checkout)
 						const MSG = await Message.findOne({
 							offset: 0, limit: 1,
-							where: {"employeeId":message.employeeId, "preAction":"CHECKIN", 'action': message.action},
+							where: {"employeeId":checkout.employeeId, "preAction":"CHECKIN", 'action': checkout.action, "status": OPTIONS.WAIT},
 							order: [
 								['createdAt', 'DESC'],
 							],
 						  })
 
 						if (!MSG) {
-							bot.sendMessage(msg.chat.id,'You have not checked in today')
+							bot.sendMessage(msg.chat.id, cannotback)
 						}else{
 							const yesterday = new Date(MSG.createdAt)
 							const today = new Date(checkOut.createdAt)
 							let consume = date.subtract(today, yesterday).toMinutes()
-							bot.sendMessage(msg.chat.id,'User '+message.employeeId + ' ' +message.preAction+ ' ' + message.action + ' succesfully\n'+ 'Duration: ' + consume. toFixed(3) + '\n' + 'At: ' + date.format(now, 'YYYY-MM-DD HH:mm:ss GMT+08:00'))
+							const data = {
+								"employeeId": checkout.employeeId,
+								"action": checkout.action,
+								"total": consume.toFixed(3)
+							}
+							const status = Status.create(data)
+
+							bot.sendMessage(msg.chat.id, notice(checkout))
 							//console.log(MSG)
 						}
 						
@@ -60,70 +133,41 @@ module.exports = function Chat(bot) {
 					}
 					break
 				default:
-					bot.sendMessage(msg.chat.id, "How can I help you!", {
-						"reply_markup": {
-							"keyboard": [["Check in Meal", 'Check out Meal'], ["Check in Smoking", 'Check out Smoking'], ["Check in Restroom", 'Check out Restroom'], ['Day off']]
-							}
-					})
+					bot.sendMessage(msg.chat.id, help, keyBoard())
 					break
 			}
 		}
 
-		if (Helper.checkLength(arr, 7)){
-			
-			const message = {
-				"preAction": arr[0].toUpperCase(),
-				"employeeId": arr[1],
-				'start': arr[3],
-				'end': arr[5],
-				"note": arr[6].toUpperCase(),
-			}
-
-			switch (message.preAction) {
-				case OPTIONS.DAY_OFF_WORK:
-					const dayoff = await Dayoff.create(message)
-					bot.sendMessage(msg.chat.id,'User '+message.employeeId + ' ' +message.preAction+ ' succesfully\n' + '\n' + 'At: ' + date.format(now, 'YYYY-MM-DD HH:mm:ss GMT+08:00'))
-				break
-				default:
-					bot.sendMessage(msg.chat.id, "How can I help you!", {
-						"reply_markup": {
-							"keyboard": [["Check in Meal", 'Check out Meal'], ["Check in Smoking", 'Check out Smoking'], ["Check in Restroom", 'Check out Restroom'], ['Day off']]
-							}
-					})
-				break
-			}
-		}
 
 		if (Helper.checkLength(arr, 1)) {
 			let action = arr[0].toUpperCase()
 			switch(action){
 				case OPTIONS.CHECK_IN_MEAL:
-					bot.sendMessage(msg.chat.id,"Please Check in Meal with form \n Checkin_YourId_Meal")
+					bot.sendMessage(msg.chat.id, answerAction(CheckinEAT))
 					break
 				case OPTIONS.CHECK_OUT_MEAL:
-					bot.sendMessage(msg.chat.id,"Please Check out Meal with form \n Checkout_YourId_Meal")
+					bot.sendMessage(msg.chat.id, answerAction(CheckoutEAT))
 					break
 				case OPTIONS.CHECK_IN_SMOKING:
-					bot.sendMessage(msg.chat.id,"Please Check in Smoking with form \n Checkin_YourId_Smoking")
+					bot.sendMessage(msg.chat.id, answerAction(CheckinSMK))
 					break
 				case OPTIONS.CHECK_OUT_SMOKING:
-					bot.sendMessage(msg.chat.id,"Please Check out Smoking with form \n Checkout_YourId_Smoking")
+					bot.sendMessage(msg.chat.id, answerAction(CheckoutSMK))
 					break
 				case OPTIONS.CHECK_IN_RESTROOM:
-					bot.sendMessage(msg.chat.id,"Please Check in Restroom with form \n Checkin_YourId_Restroom")
+					bot.sendMessage(msg.chat.id, answerAction(CheckinWC))
 					break
 				case OPTIONS.CHECK_OUT_RESTROOM:
-					bot.sendMessage(msg.chat.id,"Please Check out Restroom with form \n Checkout_YourId_Restroom")
+					bot.sendMessage(msg.chat.id, answerAction(CheckoutWC))
 					break
-				case OPTIONS.DAY_OFF:
-					bot.sendMessage(msg.chat.id,"If you want a day off please text \n Dayoff_YourId__From_YYYY-MM-DD_to_YYYY-MM-DD_note")
+				case OPTIONS.CHECK_IN_DWC:
+						bot.sendMessage(msg.chat.id, answerAction(CheckinDWC))
+						break
+				case OPTIONS.CHECK_OUT_DWC:
+					bot.sendMessage(msg.chat.id, answerAction(CheckoutDWC))
 					break
 				default:
-					bot.sendMessage(msg.chat.id, "How can I help you!", {
-						"reply_markup": {
-							"keyboard": [["Check in Meal", 'Check out Meal'], ["Check in Smoking", 'Check out Smoking'], ["Check in Restroom", 'Check out Restroom'], ['Day off']]
-							}
-					})
+					bot.sendMessage(msg.chat.id, help, keyBoard())
 					break
 			}
 

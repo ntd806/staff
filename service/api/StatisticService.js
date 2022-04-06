@@ -1,4 +1,5 @@
-const {Status} = require('../../models');
+const {API} =  require('../../const/api')
+const {Status, sequelize} = require('../../models');
 
 async function getAllStatus(req, res, next){
     let limit = 10
@@ -8,17 +9,17 @@ async function getAllStatus(req, res, next){
         offset = req.query.offset
     }
 
+    let sql = "SELECT employeeId, action, SUM(total) as Total,action FROM statuses GROUP BY action"
     try {
-        let user =  await Status.findAndCountAll({
-            limit: limit,
-            offset: offset,
-            where: {
-           }
-        })
+        const users = await sequelize.query(sql, {
+            model: Status,
+            mapToModel: true // pass true here if you have any mapped fields
+          });
 
+        console.log(users);
+          
         res.json({
             message: API.SUCCESS,
-            data: {user},
             code: 200,
         })
     } catch (error) {

@@ -8,7 +8,7 @@ const swaggerJsdoc = require("swagger-jsdoc")
 const swaggerUi = require("swagger-ui-express")
 const TelegramBot = require('node-telegram-bot-api')
 // const token = process.env.TELEGRAM_KEY
-const token = '5214511809:AAF8ILPcc4egPEHAvJ86B3N3s-q-epIirRg'
+const token = '5179625463:AAF8cdJtDOH_d8elYb3v4mJ_OJQngbDef9o'
 const bot = new TelegramBot(token, {polling: true})
 require('./bot/Telegram/messages')(bot) // Telegram Bot
 const passport = require('passport');
@@ -16,6 +16,7 @@ require('./auth/auth');
 const routes = require('./service/user/UserRouter');
 const secureRoute = require('./service/api/AdminRouter');
 const departmentRoute = require('./service/api/DepartmentRouter');
+const StatisticRouter = require('./service/api/StatisticRouter');
 
 const options = {
   definition: {
@@ -73,6 +74,7 @@ app.use('/', routes);
 // Plug in the JWT strategy as a middleware so only verified users can access this route.
 app.use('/api/user', passport.authenticate('jwt', { session: false }), secureRoute);
 app.use('/api/depart', passport.authenticate('jwt', { session: false }), departmentRoute);
+app.use('/api/statistic', passport.authenticate('jwt', { session: false }), StatisticRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
