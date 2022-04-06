@@ -2,18 +2,17 @@ var Helper =  require('../../helper/helper')
 var {OPTIONS} =  require('../../const/const')
 var {Message, Status} =  require('../../models')
 const date = require('date-and-time')
-const StatisticService = require('../../StatisticService');
 const welcome = "Xin vui lòng nhắn tin với cú pháp"
 const help = "Tôi có thể giúp gì cho bạn!"
 const cannotback = "Bạn không thể về chỗ khi chưa gửi tin ra ngoài"
-const CheckinEAT = "Checkin_Mã nhân viên_EAT"
-const CheckoutEAT = "Checkout_Mã nhân viên_EAT"
-const CheckinSMK = "Checkin_Mã nhân viên_SMK"
-const CheckoutSMK = "Checkout_Mã nhân viên_SMK" 
-const CheckinWC = "Checkin_Mã nhân viên_WC" 
-const CheckoutWC = "Checkout_Mã nhân viên_WC"
-const CheckoutDWC = "Checkin_Mã nhân viên_DWC"
-const CheckinDWC = "Checkout_Mã nhân viên_DWC"
+const CheckinEAT = "Checkin_Mã nhân viên_EAT\nVí dụ Checkin_9999999_EAT"
+const CheckoutEAT = "Checkout_Mã nhân viên_EAT\nVí dụ Checkout_9999999_EAT"
+const CheckinSMK = "Checkin_Mã nhân viên_SMK\nVí dụ Checkin_9999999_SMK"
+const CheckoutSMK = "Checkout_Mã nhân viên_SMK\nVí dụ Checkout_9999999_SMK" 
+const CheckinWC = "Checkin_Mã nhân viên_WC\nVí dụ Checkin_9999999_WC" 
+const CheckoutWC = "Checkout_Mã nhân viên_WC\nVí dụ Checkout_9999999_WC"
+const CheckoutDWC = "Checkin_Mã nhân viên_DWC\nVí dụ Checkin_9999999_DWC"
+const CheckinDWC = "Checkout_Mã nhân viên_DWC\nVí dụ Checkout_9999999_DWC"
 const OVERTIME = "vượt quá thời gian quy định"
 
 function  keyBoard(){
