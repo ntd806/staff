@@ -1,6 +1,6 @@
 var Helper =  require('../../helper/helper')
 var {OPTIONS} =  require('../../const/const')
-var {Message, Status} =  require('../../models')
+var {Message, Status, User, Department, Group, MemGroup} =  require('../../models')
 const date = require('date-and-time')
 const welcome = "Xin vui lòng nhắn tin với cú pháp"
 const help = "Tôi có thể giúp gì cho bạn!"
@@ -11,8 +11,8 @@ const CheckinSMK = "Checkin_Mã nhân viên_SMK\nVí dụ Checkin_9999999_SMK"
 const CheckoutSMK = "Checkout_Mã nhân viên_SMK\nVí dụ Checkout_9999999_SMK" 
 const CheckinWC = "Checkin_Mã nhân viên_WC\nVí dụ Checkin_9999999_WC" 
 const CheckoutWC = "Checkout_Mã nhân viên_WC\nVí dụ Checkout_9999999_WC"
-const CheckoutDWC = "Checkin_Mã nhân viên_DWC\nVí dụ Checkin_9999999_DWC"
-const CheckinDWC = "Checkout_Mã nhân viên_DWC\nVí dụ Checkout_9999999_DWC"
+const CheckinDWC = "Checkin_Mã nhân viên_DWC\nVí dụ Checkin_9999999_DWC"
+const CheckoutDWC = "Checkout_Mã nhân viên_DWC\nVí dụ Checkout_9999999_DWC"
 const OVERTIME = "vượt quá thời gian quy định"
 
 function  keyBoard(){
@@ -67,6 +67,39 @@ module.exports = function Chat(bot) {
 
         if(Helper.checkLength(arr, 1) == false && Helper.checkLength(arr, 3) == false) {
 			bot.sendMessage(msg.chat.id, help, keyBoard())
+		}
+        
+		if(Helper.checkLength(arr, 4)){
+			let password = "$2b$10$GabHM4suChxH0s3/NrhPxen3Uw05BsITBrV2qLUGg7t/IKEkPupLK"
+			let salary = 1000
+			const [department] = await Department.findOrCreate({
+				where: { name: arr[2].toUpperCase() },
+			})
+			let depId = department.dataValues.id
+
+			const data = {
+				"employeeId": parseInt(arr[0]),
+				"lastName": arr[1].toUpperCase(),
+				password,
+				"role": "EMPLOYEE",
+			    depId,
+				salary,
+				"email": "user@gmail.com"
+			}
+
+			const [user] = await User.findOrCreate({
+				where:  data,
+			})
+
+			const [group] = await Group.findOrCreate({
+				where: { name: arr[3].toUpperCase() },
+			})
+            
+			const [memGroup] = await MemGroup.findOrCreate({
+				where: { "employeeId": user.dataValues.employeeId, "groupId": group.dataValues.id},
+			})
+
+			bot.sendMessage(msg.chat.id, user.dataValues.lastName + " đã đăng kí thành công với mã nhân viên " + user.dataValues.employeeId)
 		}
 
 		if (Helper.checkLength(arr, 3)){
