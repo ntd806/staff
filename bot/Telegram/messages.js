@@ -56,11 +56,19 @@ function checkTime(action){
 	return time;
 }
 
+async function getUserName(employeeId){
+	const user = await User.findOne({
+		where: {employeeId},
+	})
+
+	return user
+}
 
 module.exports = function Chat(bot) {
 	bot.on('message', async (msg) => {
-		let arr = Helper.checkSyntax(msg.text.toString(), '_')
+		let arr = Helper.checkSyntax(msg.text, '_')
 		let time = 0;
+
 		if (arr[2]) {
 			time = checkTime(arr[2].toUpperCase());
 		}
@@ -103,10 +111,10 @@ module.exports = function Chat(bot) {
 		}
 
 		if (Helper.checkLength(arr, 3)){
-	        
+			let employeeId = arr[1]
+			const user = await getUserName(employeeId);
 			switch(arr[0].toUpperCase()){
 				case OPTIONS.CHECK_IN:
-
 					const checkin = {
 						"employeeId": arr[1],
 						"note": "no note",
@@ -114,36 +122,38 @@ module.exports = function Chat(bot) {
 						"action": arr[2].toUpperCase(),
 						"status": OPTIONS.WAIT,
 					}
-
 					try {
-						const MSG = await Message.create(checkin)
-						bot.sendMessage(msg.chat.id, notice(checkin))
-						const myTimeout = setTimeout( async()=>{
-							const MSG = await Message.findOne({
-								offset: 0, limit: 1,
-								where: {"employeeId":checkin.employeeId, "preAction":"CHECKIN", 'action': checkin.action, "status": OPTIONS.WAIT},
-								order: [
-									['createdAt', 'DESC'],
-								],
-								})
+						if(user === null) { bot.sendMessage(msg.chat.id, confirmID) }else{
+							const MSG = await Message.create(checkin)
+							bot.sendMessage(msg.chat.id, notice(checkin, user.dataValues.lastName))
+							const myTimeout = setTimeout( async()=>{
+								const MSG = await Message.findOne({
+									offset: 0, limit: 1,
+									where: {"employeeId":checkin.employeeId, "preAction":"CHECKIN", 'action': checkin.action, "status": OPTIONS.WAIT},
+									order: [
+										['createdAt', 'DESC'],
+									],
+									})
 
-							if(MSG) {
-								MSG.update({status:OPTIONS.DONE})
-								const data = {
-									"employeeId": checkin.employeeId,
-									"action": checkin.action,
-									"total": ((time/1000)/60)
+								if(MSG) {
+									MSG.update({status:OPTIONS.DONE})
+									const data = {
+										"employeeId": checkin.employeeId,
+										"action": checkin.action,
+										"total": ((time/1000)/60)
+									}
+									const status = Status.create(data)
+									bot.sendMessage(msg.chat.id, 'Nhân viên ' + user.dataValues.lastName + "\nĐi "+checkin.action +" " + OVERTIME)
+									clearTimeout(myTimeout)
 								}
-								const status = Status.create(data)
-								bot.sendMessage(msg.chat.id, 'Mã ID ' +checkin.employeeId + "\nĐi "+checkin.action +" " + OVERTIME)
-								clearTimeout(myTimeout)
-							}
 
-						}, time)
-
+							}, time)
+						}
+						
 					} catch (err) {
 						console.log(err)
 					}
+
 					break
 				case OPTIONS.CHECK_OUT:
 
@@ -154,32 +164,34 @@ module.exports = function Chat(bot) {
 						"action": arr[2].toUpperCase(),
 						"status": OPTIONS.DONE,
 					}
-
+					
 					try {
-						const checkOut = await Message.create(checkout)
-						const MSG = await Message.findOne({
-							offset: 0, limit: 1,
-							where: {"employeeId":checkout.employeeId, "preAction":"CHECKIN", 'action': checkout.action, "status": OPTIONS.WAIT},
-							order: [
-								['createdAt', 'DESC'],
-							],
-							})
+						if(user === null) { bot.sendMessage(msg.chat.id, confirmID) }else{
+							const checkOut = await Message.create(checkout)
+							const MSG = await Message.findOne({
+								offset: 0, limit: 1,
+								where: {"employeeId":checkout.employeeId, "preAction":"CHECKIN", 'action': checkout.action, "status": OPTIONS.WAIT},
+								order: [
+									['createdAt', 'DESC'],
+								],
+								})
 
-						if (!MSG) {
-							bot.sendMessage(msg.chat.id, cannotback)
-						}else{
-							MSG.update({status:OPTIONS.DONE})
-							const yesterday = new Date(MSG.createdAt)
-							const today = new Date(checkOut.createdAt)
-							let consume = date.subtract(today, yesterday).toMinutes()
-							const data = {
-								"employeeId": checkout.employeeId,
-								"action": checkout.action,
-								"total": consume.toFixed(3)
+							if (!MSG) {
+								bot.sendMessage(msg.chat.id, cannotback)
+							}else{
+								MSG.update({status:OPTIONS.DONE})
+								const yesterday = new Date(MSG.createdAt)
+								const today = new Date(checkOut.createdAt)
+								let consume = date.subtract(today, yesterday).toMinutes()
+								const data = {
+									"employeeId": checkout.employeeId,
+									"action": checkout.action,
+									"total": consume.toFixed(3)
+								}
+								const status = Status.create(data)
+								bot.sendMessage(msg.chat.id, notice(checkout, user.dataValues.lastName)+"\n Thời gian đi: "+consume.toFixed(3))
 							}
-							const status = Status.create(data)
-							bot.sendMessage(msg.chat.id, notice(checkout))
-						}
+					    }
 					} catch (err) {
 						console.log(err)
 					}
