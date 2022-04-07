@@ -14,6 +14,7 @@ const CheckoutWC = "Checkout_Mã nhân viên_WC\nVí dụ Checkout_9999999_WC"
 const CheckinDWC = "Checkin_Mã nhân viên_DWC\nVí dụ Checkin_9999999_DWC"
 const CheckoutDWC = "Checkout_Mã nhân viên_DWC\nVí dụ Checkout_9999999_DWC"
 const OVERTIME = "vượt quá thời gian quy định"
+const confirmID = "Không tìm thấy mã nhân viên. Vui lòng kiểm tra lại"
 
 function  keyBoard(){
 	return {
@@ -23,11 +24,9 @@ function  keyBoard(){
 	}
 }
 
-function notice(data){
+function notice(data, name = ''){
 	const now = new Date()
-    const user = User.findOne({"employeeId": data.employeeId})
-
-	return 'Nhân viên '+ user.dataValues.employeeId + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'+ ' lúc '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00');
+	return 'Nhân viên '+ name + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'+ ' lúc '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00')
 }
 
 function answerAction(action){
@@ -126,7 +125,7 @@ module.exports = function Chat(bot) {
 								order: [
 									['createdAt', 'DESC'],
 								],
-							  })
+								})
 
 							if(MSG) {
 								MSG.update({status:OPTIONS.DONE})
@@ -164,7 +163,7 @@ module.exports = function Chat(bot) {
 							order: [
 								['createdAt', 'DESC'],
 							],
-						  })
+							})
 
 						if (!MSG) {
 							bot.sendMessage(msg.chat.id, cannotback)
@@ -181,7 +180,6 @@ module.exports = function Chat(bot) {
 							const status = Status.create(data)
 							bot.sendMessage(msg.chat.id, notice(checkout))
 						}
-						
 					} catch (err) {
 						console.log(err)
 					}
