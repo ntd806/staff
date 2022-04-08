@@ -21,10 +21,6 @@ function notice(data, name = ''){
 	return name + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'+ ' lúc '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00')
 }
 
-function answerAction(action){
-	return welcome+" \n " + action;
-}
-
 function checkTime(action){
 	let time = 0
 
@@ -72,36 +68,43 @@ module.exports = function Chat(bot) {
 			})
 			let depId = department.dataValues.id
 
-			const data = {
-				"employeeId": parseInt(arr[0]),
-				"lastName": msg.from.last_name,
-				"firstName": msg.from.first_name,
-				password,
-				"role": "EMPLOYEE",
-			    depId,
-				salary,
-				"email": msg.from.username
+            if(msg.from.username){
+				const data = {
+					"employeeId": parseInt(arr[0]),
+					password,
+					'firstName': msg.from.first_name,
+					'lastName': msg.from.last_name,
+					"role": "EMPLOYEE",
+					depId,
+					salary,
+					"email": msg.from.username
+				}
+	
+				const [user] = await User.findOrCreate({
+					where:  data,
+				})
+	
+				const [group] = await Group.findOrCreate({
+					where: { name: arr[2].toUpperCase() },
+				})
+				
+				const [memGroup] = await MemGroup.findOrCreate({
+					where: { "employeeId": user.dataValues.employeeId, "groupId": group.dataValues.id},
+				})
+	
+				bot.sendMessage(msg.chat.id, msg.from.first_name+' '+ msg.from.last_name + " đã đăng kí thành công với mã nhân viên " + user.dataValues.employeeId)
+			}else{
+				bot.sendMessage(msg.chat.id, "Đăng kí không thành công!")
 			}
-
-			const [user] = await User.findOrCreate({
-				where:  data,
-			})
-
-			const [group] = await Group.findOrCreate({
-				where: { name: arr[2].toUpperCase() },
-			})
-            
-			const [memGroup] = await MemGroup.findOrCreate({
-				where: { "employeeId": user.dataValues.employeeId, "groupId": group.dataValues.id},
-			})
-
-			bot.sendMessage(msg.chat.id, user.dataValues.firstName + " " + user.dataValues.lastName + " đã đăng kí thành công với mã nhân viên " + user.dataValues.employeeId)
 		}
 
 		if (Helper.checkLength(arr, 1)){
 			const actions = msg.text.split(' ')
-			let email = msg.from.username
-			const user = await getUserName(email);
+			let email = ''
+			if(msg.from.username) {
+				email = msg.from.username
+			}
+			let user = await getUserName(email);
 			const action = actions[0].toUpperCase()
 			let time = 0;
 			if(actions[1]) {
@@ -111,7 +114,7 @@ module.exports = function Chat(bot) {
 			switch(action){
 				case OPTIONS.CHECK_IN:
 					try {
-						if(user === null) { bot.sendMessage(msg.chat.id, confirmID) }else{
+						if(!user) { bot.sendMessage(msg.chat.id, confirmID) }else{
 							const checkin = {
 								"employeeId": user.dataValues.employeeId,
 								"note": "no note",
@@ -120,7 +123,7 @@ module.exports = function Chat(bot) {
 								"status": OPTIONS.WAIT,
 							}
 							const MSG = await Message.create(checkin)
-							bot.sendMessage(msg.chat.id, notice(checkin, user.dataValues.firstName + " " + user.dataValues.lastName ))
+							bot.sendMessage(msg.chat.id, notice(checkin, msg.from.first_name+' '+ msg.from.last_name ))
 							const myTimeout = setTimeout( async()=>{
 								const MSG = await Message.findOne({
 									offset: 0, limit: 1,
@@ -138,7 +141,7 @@ module.exports = function Chat(bot) {
 										"total": ((time/1000)/60)
 									}
 									const status = Status.create(data)
-									bot.sendMessage(msg.chat.id,  user.dataValues.firstName + " " + user.dataValues.lastName + + "\nĐi "+checkin.action +" " + OVERTIME)
+									bot.sendMessage(msg.chat.id,  msg.from.first_name+' '+ msg.from.last_name + "\nĐi "+checkin.action +" " + OVERTIME)
 									clearTimeout(myTimeout)
 								}
 
@@ -152,7 +155,7 @@ module.exports = function Chat(bot) {
 					break
 				case OPTIONS.CHECK_OUT:
 					try {
-						if(user === null) { bot.sendMessage(msg.chat.id, confirmID) }else{
+						if(!user) { bot.sendMessage(msg.chat.id, confirmID) }else{
 							const checkout = {
 								"employeeId": user.dataValues.employeeId,
 								"note": "no note",
@@ -182,7 +185,7 @@ module.exports = function Chat(bot) {
 									"total": consume.toFixed(3)
 								}
 								const status = Status.create(data)
-								bot.sendMessage(msg.chat.id, notice(checkout, user.dataValues.firstName + " " + user.dataValues.lastName)+"\n Thời gian: "+consume.toFixed(3))
+								bot.sendMessage(msg.chat.id, notice(checkout, msg.from.first_name+' '+ msg.from.last_name)+"\n Thời gian: "+consume.toFixed(3))
 							}
 					    }
 					} catch (err) {

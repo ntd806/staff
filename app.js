@@ -8,7 +8,7 @@ const swaggerJsdoc = require("swagger-jsdoc")
 const swaggerUi = require("swagger-ui-express")
 const TelegramBot = require('node-telegram-bot-api')
 // const token = process.env.TELEGRAM_KEY
-const token = '5179625463:AAF8cdJtDOH_d8elYb3v4mJ_OJQngbDef9o'
+const token = '5022072043:AAGdXAwSqVD2kFPjihzJix6sQlobtwglMxw'
 const bot = new TelegramBot(token, {polling: true})
 require('./bot/Telegram/messages')(bot) // Telegram Bot
 const passport = require('passport');
