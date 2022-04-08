@@ -5,28 +5,20 @@ const date = require('date-and-time')
 const welcome = "Xin vui lòng nhắn tin với cú pháp"
 const help = "Tôi có thể giúp gì cho bạn!"
 const cannotback = "Bạn không thể về chỗ khi chưa gửi tin ra ngoài"
-const CheckinEAT = "Checkin_Mã nhân viên_EAT\nVí dụ Checkin_9999999_EAT"
-const CheckoutEAT = "Checkout_Mã nhân viên_EAT\nVí dụ Checkout_9999999_EAT"
-const CheckinSMK = "Checkin_Mã nhân viên_SMK\nVí dụ Checkin_9999999_SMK"
-const CheckoutSMK = "Checkout_Mã nhân viên_SMK\nVí dụ Checkout_9999999_SMK" 
-const CheckinWC = "Checkin_Mã nhân viên_WC\nVí dụ Checkin_9999999_WC" 
-const CheckoutWC = "Checkout_Mã nhân viên_WC\nVí dụ Checkout_9999999_WC"
-const CheckinDWC = "Checkin_Mã nhân viên_DWC\nVí dụ Checkin_9999999_DWC"
-const CheckoutDWC = "Checkout_Mã nhân viên_DWC\nVí dụ Checkout_9999999_DWC"
 const OVERTIME = "vượt quá thời gian quy định"
 const confirmID = "Không tìm thấy mã nhân viên. Vui lòng kiểm tra lại"
 
 function  keyBoard(){
 	return {
 		"reply_markup": {
-		"keyboard": [["Đi (EAT)", 'Về chỗ (EAT)'], ["Đi (SMK)", 'Về chỗ (SMK)'], ["Đi (WC)", 'Về chỗ (WC)'], ["Đi (DWC)", 'Về chỗ (DWC)']]
+		"keyboard": [["Đi EAT", 'Về-chỗ EAT'], ["Đi SMK", 'Về-chỗ SMK'], ["Đi WC", 'Về-chỗ WC'], ["Đi DWC", 'Về-chỗ DWC']]
 		}
 	}
 }
 
 function notice(data, name = ''){
 	const now = new Date()
-	return 'Nhân viên '+ name + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'+ ' lúc '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00')
+	return name + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'+ ' lúc '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00')
 }
 
 function answerAction(action){
@@ -56,9 +48,9 @@ function checkTime(action){
 	return time;
 }
 
-async function getUserName(employeeId){
+async function getUserName(email){
 	const user = await User.findOne({
-		where: {employeeId},
+		where: {email},
 	})
 
 	return user
@@ -67,13 +59,8 @@ async function getUserName(employeeId){
 module.exports = function Chat(bot) {
 	bot.on('message', async (msg) => {
 		let arr = Helper.checkSyntax(msg.text, '_')
-		let time = 0;
 
-		if (arr[2]) {
-			time = checkTime(arr[2].toUpperCase());
-		}
-
-        if(Helper.checkLength(arr, 1) == false && Helper.checkLength(arr, 3) == false) {
+        if(Helper.checkLength(arr, 3) == false && Helper.checkLength(arr, 1) == false) {
 			bot.sendMessage(msg.chat.id, help, keyBoard())
 		}
         
@@ -111,132 +98,101 @@ module.exports = function Chat(bot) {
 			bot.sendMessage(msg.chat.id, user.dataValues.firstName + " " + user.dataValues.lastName + " đã đăng kí thành công với mã nhân viên " + user.dataValues.employeeId)
 		}
 
-		// if (Helper.checkLength(arr, 3)){
-		// 	let employeeId = arr[1]
-		// 	const user = await getUserName(employeeId);
-		// 	switch(arr[0].toUpperCase()){
-		// 		case OPTIONS.CHECK_IN:
-		// 			const checkin = {
-		// 				"employeeId": arr[1],
-		// 				"note": "no note",
-		// 				"preAction": arr[0].toUpperCase(),
-		// 				"action": arr[2].toUpperCase(),
-		// 				"status": OPTIONS.WAIT,
-		// 			}
-		// 			try {
-		// 				if(user === null) { bot.sendMessage(msg.chat.id, confirmID) }else{
-		// 					const MSG = await Message.create(checkin)
-		// 					bot.sendMessage(msg.chat.id, notice(checkin, user.dataValues.lastName))
-		// 					const myTimeout = setTimeout( async()=>{
-		// 						const MSG = await Message.findOne({
-		// 							offset: 0, limit: 1,
-		// 							where: {"employeeId":checkin.employeeId, "preAction":"CHECKIN", 'action': checkin.action, "status": OPTIONS.WAIT},
-		// 							order: [
-		// 								['createdAt', 'DESC'],
-		// 							],
-		// 							})
-
-		// 						if(MSG) {
-		// 							MSG.update({status:OPTIONS.DONE})
-		// 							const data = {
-		// 								"employeeId": checkin.employeeId,
-		// 								"action": checkin.action,
-		// 								"total": ((time/1000)/60)
-		// 							}
-		// 							const status = Status.create(data)
-		// 							bot.sendMessage(msg.chat.id, 'Nhân viên ' + user.dataValues.lastName + "\nĐi "+checkin.action +" " + OVERTIME)
-		// 							clearTimeout(myTimeout)
-		// 						}
-
-		// 					}, time)
-		// 				}
-						
-		// 			} catch (err) {
-		// 				console.log(err)
-		// 			}
-
-		// 			break
-		// 		case OPTIONS.CHECK_OUT:
-
-		// 			const checkout = {
-		// 				"employeeId": arr[1],
-		// 				"note": "no note",
-		// 				"preAction": arr[0].toUpperCase(),
-		// 				"action": arr[2].toUpperCase(),
-		// 				"status": OPTIONS.DONE,
-		// 			}
-					
-		// 			try {
-		// 				if(user === null) { bot.sendMessage(msg.chat.id, confirmID) }else{
-		// 					const checkOut = await Message.create(checkout)
-		// 					const MSG = await Message.findOne({
-		// 						offset: 0, limit: 1,
-		// 						where: {"employeeId":checkout.employeeId, "preAction":"CHECKIN", 'action': checkout.action, "status": OPTIONS.WAIT},
-		// 						order: [
-		// 							['createdAt', 'DESC'],
-		// 						],
-		// 						})
-
-		// 					if (!MSG) {
-		// 						bot.sendMessage(msg.chat.id, cannotback)
-		// 					}else{
-		// 						MSG.update({status:OPTIONS.DONE})
-		// 						const yesterday = new Date(MSG.createdAt)
-		// 						const today = new Date(checkOut.createdAt)
-		// 						let consume = date.subtract(today, yesterday).toMinutes()
-		// 						const data = {
-		// 							"employeeId": checkout.employeeId,
-		// 							"action": checkout.action,
-		// 							"total": consume.toFixed(3)
-		// 						}
-		// 						const status = Status.create(data)
-		// 						bot.sendMessage(msg.chat.id, notice(checkout, user.dataValues.lastName)+"\n Thời gian đi: "+consume.toFixed(3))
-		// 					}
-		// 			    }
-		// 			} catch (err) {
-		// 				console.log(err)
-		// 			}
-		// 			break
-		// 		default:
-		// 			bot.sendMessage(msg.chat.id, help, keyBoard())
-		// 			break
-		// 	}
-		// }
-
-
-		if (Helper.checkLength(arr, 1)) {
-			let action = arr[0].toUpperCase()
+		if (Helper.checkLength(arr, 1)){
+			const actions = msg.text.split(' ')
+			let email = msg.from.username
+			const user = await getUserName(email);
+			const action = actions[0].toUpperCase()
+			let time = 0;
+			if(actions[1]) {
+				time = checkTime(actions[1].toUpperCase());
+			}
+			
 			switch(action){
-				case OPTIONS.CHECK_IN_MEAL:
-					bot.sendMessage(msg.chat.id, answerAction(CheckinEAT))
+				case OPTIONS.CHECK_IN:
+					try {
+						if(user === null) { bot.sendMessage(msg.chat.id, confirmID) }else{
+							const checkin = {
+								"employeeId": user.dataValues.employeeId,
+								"note": "no note",
+								"preAction": "CHECKIN",
+								"action": actions[1].toUpperCase(),
+								"status": OPTIONS.WAIT,
+							}
+							const MSG = await Message.create(checkin)
+							bot.sendMessage(msg.chat.id, notice(checkin, user.dataValues.firstName + " " + user.dataValues.lastName ))
+							const myTimeout = setTimeout( async()=>{
+								const MSG = await Message.findOne({
+									offset: 0, limit: 1,
+									where: {"employeeId":checkin.employeeId, "preAction":"CHECKIN", 'action': checkin.action, "status": OPTIONS.WAIT},
+									order: [
+										['createdAt', 'DESC'],
+									],
+									})
+
+								if(MSG) {
+									MSG.update({status:OPTIONS.DONE})
+									const data = {
+										"employeeId": checkin.employeeId,
+										"action": checkin.action,
+										"total": ((time/1000)/60)
+									}
+									const status = Status.create(data)
+									bot.sendMessage(msg.chat.id,  user.dataValues.firstName + " " + user.dataValues.lastName + + "\nĐi "+checkin.action +" " + OVERTIME)
+									clearTimeout(myTimeout)
+								}
+
+							}, time)
+						}
+						
+					} catch (err) {
+						console.log(err)
+					}
+
 					break
-				case OPTIONS.CHECK_OUT_MEAL:
-					bot.sendMessage(msg.chat.id, answerAction(CheckoutEAT))
-					break
-				case OPTIONS.CHECK_IN_SMOKING:
-					bot.sendMessage(msg.chat.id, answerAction(CheckinSMK))
-					break
-				case OPTIONS.CHECK_OUT_SMOKING:
-					bot.sendMessage(msg.chat.id, answerAction(CheckoutSMK))
-					break
-				case OPTIONS.CHECK_IN_RESTROOM:
-					bot.sendMessage(msg.chat.id, answerAction(CheckinWC))
-					break
-				case OPTIONS.CHECK_OUT_RESTROOM:
-					bot.sendMessage(msg.chat.id, answerAction(CheckoutWC))
-					break
-				case OPTIONS.CHECK_IN_DWC:
-						bot.sendMessage(msg.chat.id, answerAction(CheckinDWC))
-						break
-				case OPTIONS.CHECK_OUT_DWC:
-					bot.sendMessage(msg.chat.id, answerAction(CheckoutDWC))
+				case OPTIONS.CHECK_OUT:
+					try {
+						if(user === null) { bot.sendMessage(msg.chat.id, confirmID) }else{
+							const checkout = {
+								"employeeId": user.dataValues.employeeId,
+								"note": "no note",
+								"preAction": "CHECKOUT",
+								"action": actions[1].toUpperCase(),
+								"status": OPTIONS.DONE,
+							}
+							const checkOut = await Message.create(checkout)
+							const MSG = await Message.findOne({
+								offset: 0, limit: 1,
+								where: {"employeeId":checkout.employeeId, "preAction":"CHECKIN", 'action': checkout.action, "status": OPTIONS.WAIT},
+								order: [
+									['createdAt', 'DESC'],
+								],
+								})
+
+							if (!MSG) {
+								bot.sendMessage(msg.chat.id, cannotback)
+							}else{
+								MSG.update({status:OPTIONS.DONE})
+								const yesterday = new Date(MSG.createdAt)
+								const today = new Date(checkOut.createdAt)
+								let consume = date.subtract(today, yesterday).toMinutes()
+								const data = {
+									"employeeId": checkout.employeeId,
+									"action": checkout.action,
+									"total": consume.toFixed(3)
+								}
+								const status = Status.create(data)
+								bot.sendMessage(msg.chat.id, notice(checkout, user.dataValues.firstName + " " + user.dataValues.lastName)+"\n Thời gian: "+consume.toFixed(3))
+							}
+					    }
+					} catch (err) {
+						console.log(err)
+					}
 					break
 				default:
 					bot.sendMessage(msg.chat.id, help, keyBoard())
 					break
 			}
-
 		}
-
 	})
 }
