@@ -6,7 +6,7 @@ const welcome = "Xin vui lòng nhắn tin với cú pháp"
 const help = "Tôi có thể giúp gì cho bạn?\n Nếu chưa đăng kí xin vui lòng nhắn tin cú pháp\n Mã nhân viên_Phòng ban_Leader group\n ví dụ\n 22222_Marketing_USA"
 const cannotback = "Bạn không thể về chỗ khi chưa gửi tin ra ngoài"
 const OVERTIME = "vượt quá thời gian quy định"
-const confirmID = "Không tìm thấy mã nhân viên. Vui lòng kiểm tra lại"
+const confirmID = "Không tìm thấy mã nhân viên. Vui lòng kiểm tra lại\n Nếu chưa đăng kí xin vui lòng nhắn tin cú pháp\n Mã nhân viên_Phòng ban_Leader group\n ví dụ\n 22222_Marketing_US"
 
 function  keyBoard(){
 	return {
@@ -72,8 +72,6 @@ module.exports = function Chat(bot) {
 				const data = {
 					"employeeId": parseInt(arr[0]),
 					password,
-					'firstName': msg.from.first_name,
-					'lastName': msg.from.last_name,
 					"role": "EMPLOYEE",
 					depId,
 					salary,
@@ -100,11 +98,11 @@ module.exports = function Chat(bot) {
 
 		if (Helper.checkLength(arr, 1)){
 			const actions = msg.text.split(' ')
-			let email = ''
+			let user = null
 			if(msg.from.username) {
-				email = msg.from.username
+				let email = msg.from.username
+				user = await getUserName(email)
 			}
-			let user = await getUserName(email);
 			const action = actions[0].toUpperCase()
 			let time = 0;
 			if(actions[1]) {
