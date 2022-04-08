@@ -92,7 +92,7 @@ module.exports = function Chat(bot) {
 	
 				bot.sendMessage(msg.chat.id, msg.from.first_name+' '+ msg.from.last_name + " đã đăng kí thành công với mã nhân viên " + user.dataValues.employeeId)
 			}else{
-				bot.sendMessage(msg.chat.id, "Đăng kí không thành công!")
+				bot.sendMessage(msg.chat.id, "Đăng kí không thành công!\n Vui lòng kiểm tra lại đã tạo Username hay chưa?")
 			}
 		}
 
