@@ -77,22 +77,23 @@ module.exports = function Chat(bot) {
 			bot.sendMessage(msg.chat.id, help, keyBoard())
 		}
         
-		if(Helper.checkLength(arr, 4)){
+		if(Helper.checkLength(arr, 3)){
 			let password = "$2b$10$GabHM4suChxH0s3/NrhPxen3Uw05BsITBrV2qLUGg7t/IKEkPupLK"
 			let salary = 1000
 			const [department] = await Department.findOrCreate({
-				where: { name: arr[2].toUpperCase() },
+				where: { name: arr[1].toUpperCase() },
 			})
 			let depId = department.dataValues.id
 
 			const data = {
 				"employeeId": parseInt(arr[0]),
-				"lastName": arr[1].toUpperCase(),
+				"lastName": msg.from.last_name,
+				"firstName": msg.from.first_name,
 				password,
 				"role": "EMPLOYEE",
 			    depId,
 				salary,
-				"email": "user@gmail.com"
+				"email": msg.from.username
 			}
 
 			const [user] = await User.findOrCreate({
@@ -100,107 +101,107 @@ module.exports = function Chat(bot) {
 			})
 
 			const [group] = await Group.findOrCreate({
-				where: { name: arr[3].toUpperCase() },
+				where: { name: arr[2].toUpperCase() },
 			})
             
 			const [memGroup] = await MemGroup.findOrCreate({
 				where: { "employeeId": user.dataValues.employeeId, "groupId": group.dataValues.id},
 			})
 
-			bot.sendMessage(msg.chat.id, user.dataValues.lastName + " đã đăng kí thành công với mã nhân viên " + user.dataValues.employeeId)
+			bot.sendMessage(msg.chat.id, user.dataValues.firstName + " " + user.dataValues.lastName + " đã đăng kí thành công với mã nhân viên " + user.dataValues.employeeId)
 		}
 
-		if (Helper.checkLength(arr, 3)){
-			let employeeId = arr[1]
-			const user = await getUserName(employeeId);
-			switch(arr[0].toUpperCase()){
-				case OPTIONS.CHECK_IN:
-					const checkin = {
-						"employeeId": arr[1],
-						"note": "no note",
-						"preAction": arr[0].toUpperCase(),
-						"action": arr[2].toUpperCase(),
-						"status": OPTIONS.WAIT,
-					}
-					try {
-						if(user === null) { bot.sendMessage(msg.chat.id, confirmID) }else{
-							const MSG = await Message.create(checkin)
-							bot.sendMessage(msg.chat.id, notice(checkin, user.dataValues.lastName))
-							const myTimeout = setTimeout( async()=>{
-								const MSG = await Message.findOne({
-									offset: 0, limit: 1,
-									where: {"employeeId":checkin.employeeId, "preAction":"CHECKIN", 'action': checkin.action, "status": OPTIONS.WAIT},
-									order: [
-										['createdAt', 'DESC'],
-									],
-									})
+		// if (Helper.checkLength(arr, 3)){
+		// 	let employeeId = arr[1]
+		// 	const user = await getUserName(employeeId);
+		// 	switch(arr[0].toUpperCase()){
+		// 		case OPTIONS.CHECK_IN:
+		// 			const checkin = {
+		// 				"employeeId": arr[1],
+		// 				"note": "no note",
+		// 				"preAction": arr[0].toUpperCase(),
+		// 				"action": arr[2].toUpperCase(),
+		// 				"status": OPTIONS.WAIT,
+		// 			}
+		// 			try {
+		// 				if(user === null) { bot.sendMessage(msg.chat.id, confirmID) }else{
+		// 					const MSG = await Message.create(checkin)
+		// 					bot.sendMessage(msg.chat.id, notice(checkin, user.dataValues.lastName))
+		// 					const myTimeout = setTimeout( async()=>{
+		// 						const MSG = await Message.findOne({
+		// 							offset: 0, limit: 1,
+		// 							where: {"employeeId":checkin.employeeId, "preAction":"CHECKIN", 'action': checkin.action, "status": OPTIONS.WAIT},
+		// 							order: [
+		// 								['createdAt', 'DESC'],
+		// 							],
+		// 							})
 
-								if(MSG) {
-									MSG.update({status:OPTIONS.DONE})
-									const data = {
-										"employeeId": checkin.employeeId,
-										"action": checkin.action,
-										"total": ((time/1000)/60)
-									}
-									const status = Status.create(data)
-									bot.sendMessage(msg.chat.id, 'Nhân viên ' + user.dataValues.lastName + "\nĐi "+checkin.action +" " + OVERTIME)
-									clearTimeout(myTimeout)
-								}
+		// 						if(MSG) {
+		// 							MSG.update({status:OPTIONS.DONE})
+		// 							const data = {
+		// 								"employeeId": checkin.employeeId,
+		// 								"action": checkin.action,
+		// 								"total": ((time/1000)/60)
+		// 							}
+		// 							const status = Status.create(data)
+		// 							bot.sendMessage(msg.chat.id, 'Nhân viên ' + user.dataValues.lastName + "\nĐi "+checkin.action +" " + OVERTIME)
+		// 							clearTimeout(myTimeout)
+		// 						}
 
-							}, time)
-						}
+		// 					}, time)
+		// 				}
 						
-					} catch (err) {
-						console.log(err)
-					}
+		// 			} catch (err) {
+		// 				console.log(err)
+		// 			}
 
-					break
-				case OPTIONS.CHECK_OUT:
+		// 			break
+		// 		case OPTIONS.CHECK_OUT:
 
-					const checkout = {
-						"employeeId": arr[1],
-						"note": "no note",
-						"preAction": arr[0].toUpperCase(),
-						"action": arr[2].toUpperCase(),
-						"status": OPTIONS.DONE,
-					}
+		// 			const checkout = {
+		// 				"employeeId": arr[1],
+		// 				"note": "no note",
+		// 				"preAction": arr[0].toUpperCase(),
+		// 				"action": arr[2].toUpperCase(),
+		// 				"status": OPTIONS.DONE,
+		// 			}
 					
-					try {
-						if(user === null) { bot.sendMessage(msg.chat.id, confirmID) }else{
-							const checkOut = await Message.create(checkout)
-							const MSG = await Message.findOne({
-								offset: 0, limit: 1,
-								where: {"employeeId":checkout.employeeId, "preAction":"CHECKIN", 'action': checkout.action, "status": OPTIONS.WAIT},
-								order: [
-									['createdAt', 'DESC'],
-								],
-								})
+		// 			try {
+		// 				if(user === null) { bot.sendMessage(msg.chat.id, confirmID) }else{
+		// 					const checkOut = await Message.create(checkout)
+		// 					const MSG = await Message.findOne({
+		// 						offset: 0, limit: 1,
+		// 						where: {"employeeId":checkout.employeeId, "preAction":"CHECKIN", 'action': checkout.action, "status": OPTIONS.WAIT},
+		// 						order: [
+		// 							['createdAt', 'DESC'],
+		// 						],
+		// 						})
 
-							if (!MSG) {
-								bot.sendMessage(msg.chat.id, cannotback)
-							}else{
-								MSG.update({status:OPTIONS.DONE})
-								const yesterday = new Date(MSG.createdAt)
-								const today = new Date(checkOut.createdAt)
-								let consume = date.subtract(today, yesterday).toMinutes()
-								const data = {
-									"employeeId": checkout.employeeId,
-									"action": checkout.action,
-									"total": consume.toFixed(3)
-								}
-								const status = Status.create(data)
-								bot.sendMessage(msg.chat.id, notice(checkout, user.dataValues.lastName)+"\n Thời gian đi: "+consume.toFixed(3))
-							}
-					    }
-					} catch (err) {
-						console.log(err)
-					}
-					break
-				default:
-					bot.sendMessage(msg.chat.id, help, keyBoard())
-					break
-			}
-		}
+		// 					if (!MSG) {
+		// 						bot.sendMessage(msg.chat.id, cannotback)
+		// 					}else{
+		// 						MSG.update({status:OPTIONS.DONE})
+		// 						const yesterday = new Date(MSG.createdAt)
+		// 						const today = new Date(checkOut.createdAt)
+		// 						let consume = date.subtract(today, yesterday).toMinutes()
+		// 						const data = {
+		// 							"employeeId": checkout.employeeId,
+		// 							"action": checkout.action,
+		// 							"total": consume.toFixed(3)
+		// 						}
+		// 						const status = Status.create(data)
+		// 						bot.sendMessage(msg.chat.id, notice(checkout, user.dataValues.lastName)+"\n Thời gian đi: "+consume.toFixed(3))
+		// 					}
+		// 			    }
+		// 			} catch (err) {
+		// 				console.log(err)
+		// 			}
+		// 			break
+		// 		default:
+		// 			bot.sendMessage(msg.chat.id, help, keyBoard())
+		// 			break
+		// 	}
+		// }
 
 
 		if (Helper.checkLength(arr, 1)) {
