@@ -35,7 +35,7 @@ function checkTime(action){
 			time = 905000
 			break
 		case 'WC':
-			time = 245000
+			time = 305000
 			break
 		default:
 		    break
