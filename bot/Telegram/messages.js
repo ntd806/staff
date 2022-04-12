@@ -63,12 +63,12 @@ module.exports = function Chat(bot) {
 		if(Helper.checkLength(arr, 3)){
 			let password = "$2b$10$GabHM4suChxH0s3/NrhPxen3Uw05BsITBrV2qLUGg7t/IKEkPupLK"
 			let salary = 1000
-			const [department] = await Department.findOrCreate({
-				where: { name: arr[1].toUpperCase() },
-			})
-			let depId = department.dataValues.id
 
-            if(msg.from.username){
+            if(msg.from.username && arr[1].toUpperCase()){
+				const [department] = await Department.findOrCreate({
+					where: { name: arr[1].toUpperCase() },
+				})
+				let depId = department.dataValues.id
 				const data = {
 					"employeeId": parseInt(arr[0]),
 					password,
