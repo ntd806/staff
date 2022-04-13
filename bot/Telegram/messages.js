@@ -138,30 +138,30 @@ module.exports = function Chat(bot) {
 			let salary = 1000
 
             if(msg.from.username && arr[1].toUpperCase()){
-				const [department] = await Department.findOrCreate({
-					where: { name: arr[1].toUpperCase() },
-				})
-				let depId = department.dataValues.id
-				const data = {
-					"employeeId": parseInt(arr[0]),
-					password,
-					"role": "EMPLOYEE",
-					depId,
-					salary,
-					"email": msg.from.username
-				}
+				// const [department] = await Department.findOrCreate({
+				// 	where: { name: arr[1].toUpperCase() },
+				// })
+				// let depId = department.dataValues.id
+				// const data = {
+				// 	"employeeId": parseInt(arr[0]),
+				// 	password,
+				// 	"role": "EMPLOYEE",
+				// 	depId,
+				// 	salary,
+				// 	"email": msg.from.username
+				// }
 	
-				const [user] = await User.findOrCreate({
-					where:  data,
-				})
+				// const [user] = await User.findOrCreate({
+				// 	where:  data,
+				// })
 	
-				const [group] = await Group.findOrCreate({
-					where: { name: arr[2].toUpperCase() },
-				})
+				// const [group] = await Group.findOrCreate({
+				// 	where: { name: arr[2].toUpperCase() },
+				// })
 				
-				const [memGroup] = await MemGroup.findOrCreate({
-					where: { "employeeId": user.dataValues.employeeId, "groupId": group.dataValues.id},
-				})
+				// const [memGroup] = await MemGroup.findOrCreate({
+				// 	where: { "employeeId": user.dataValues.employeeId, "groupId": group.dataValues.id},
+				// })
 	
 				bot.sendMessage(msg.chat.id, msg.from.first_name+' '+ msg.from.last_name + " đã đăng kí thành công với mã nhân viên " + user.dataValues.employeeId)
 			}else{
