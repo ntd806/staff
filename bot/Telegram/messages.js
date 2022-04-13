@@ -1,8 +1,8 @@
 var Helper =  require('../../helper/helper')
 var {OPTIONS} =  require('../../const/const')
-var {Message, Status, User, Department, Group, MemGroup} =  require('../../models')
+var {Message, Status, User, Department, Group, MemGroup, sequelize} =  require('../../models')
 const date = require('date-and-time')
-const welcome = "Xin vui lòng nhắn tin với cú pháp"
+const List = require("list");
 const help = "Tôi có thể giúp gì cho bạn?\n Nếu chưa đăng kí xin vui lòng nhắn tin cú pháp\n Mã nhân viên_Phòng ban_Leader group\n ví dụ\n 22222_Marketing_USA"
 const cannotback = "Bạn không thể về chỗ khi chưa gửi tin ra ngoài"
 const OVERTIME = "vượt quá thời gian quy định"
@@ -52,12 +52,86 @@ async function getUserName(email){
 	return user
 }
 
+
+async function getStatus(day='', depName = ''){
+    const now = new Date();
+	let time = null;
+	depName = depName.toUpperCase()
+	
+    switch (day) {
+        case 'today':
+            time = date.format(now, 'YYYY-MM-DD')
+            break;
+        case 'yesterday':
+            time = date.addDays(now, -1)
+			time = date.format(time, 'YYYY-MM-DD')
+            break;
+        default:
+            time = date.format(day, 'YYYY-MM-DD')
+            break
+    }
+
+    let sql = "SELECT s.employeeId, s.action, SUM(s.total) as Total, COUNT(s.action) as time, action FROM statuses s where s.createdAt like '%"+time+"%' GROUP BY s.action"
+    try {
+		var result = [];
+        const status = await sequelize.query(sql, {
+            model: Status,
+            mapToModel: true // pass true here if you have any mapped fields
+          });
+
+		for(var i in status){
+		
+			let user = await User.findOne({
+				where: {employeeId:status[i]['dataValues'].employeeId},
+			})
+            
+			let department = await Department.findOne({
+				where: {id:user.dataValues.depId},
+			})
+
+			if (depName === department.dataValues.name) {
+				let data = [
+					user,
+					department,
+					status[i]
+				]
+
+				result.push(data)
+			}
+		}
+		
+        return result
+
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+function converString(status){
+	let s = ''
+	let len = status.length
+	for (var i = 0; i < len; i++) {
+		let ln = status[i].length
+		console.log(status[i][0].dataValues.email)
+		let st = status[i][0].dataValues.email + ' Tổng thời gian: ' + status[i][2].dataValues.Total.toFixed(3) + " Đã đi " + status[i][2].dataValues.action + " Số lần: " +status[i][2].dataValues.time+"\n"
+		s += st
+	}
+
+	return s
+}
+
 module.exports = function Chat(bot) {
 	bot.on('message', async (msg) => {
 		let arr = Helper.checkSyntax(msg.text, '_')
 
-        if(Helper.checkLength(arr, 3) == false && Helper.checkLength(arr, 1) == false) {
+        if(Helper.checkLength(arr, 3) == false && Helper.checkLength(arr, 1) == false && Helper.checkLength(arr, 2) == false) {
 			bot.sendMessage(msg.chat.id, help, keyBoard())
+		}
+
+		if(Helper.checkLength(arr, 2)){
+			let status = await getStatus(arr[1], arr[0])
+			let data = converString(status)
+			bot.sendMessage(msg.chat.id, data)
 		}
         
 		if(Helper.checkLength(arr, 3)){
