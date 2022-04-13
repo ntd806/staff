@@ -163,7 +163,7 @@ module.exports = function Chat(bot) {
 				// 	where: { "employeeId": user.dataValues.employeeId, "groupId": group.dataValues.id},
 				// })
 	
-				bot.sendMessage(msg.chat.id, msg.from.first_name+' '+ msg.from.last_name + " đã đăng kí thành công với mã nhân viên " + user.dataValues.employeeId)
+				// bot.sendMessage(msg.chat.id, msg.from.first_name+' '+ msg.from.last_name + " đã đăng kí thành công với mã nhân viên " + user.dataValues.employeeId)
 			}else{
 				bot.sendMessage(msg.chat.id, "Đăng kí không thành công!\n Vui lòng kiểm tra lại đã tạo Username ở telegram hay chưa?")
 			}
