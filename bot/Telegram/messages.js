@@ -110,7 +110,6 @@ function converString(status){
 	let s = ''
 	let len = status.length
 	for (var i = 0; i < len; i++) {
-		let ln = status[i].length
 		console.log(status[i][0].dataValues.email)
 		let st = status[i][0].dataValues.email + ' Tổng thời gian: ' + status[i][2].dataValues.Total.toFixed(3) + " Đã đi " + status[i][2].dataValues.action + " Số lần: " +status[i][2].dataValues.time+"\n"
 		s += st
@@ -130,6 +129,9 @@ module.exports = function Chat(bot) {
 		if(Helper.checkLength(arr, 2)){
 			let status = await getStatus(arr[1], arr[0])
 			let data = converString(status)
+			if (!data) {
+				data = "Không có dữ liệu"
+			}
 			bot.sendMessage(msg.chat.id, data)
 		}
         
