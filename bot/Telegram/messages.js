@@ -2,7 +2,6 @@ var Helper =  require('../../helper/helper')
 var {OPTIONS} =  require('../../const/const')
 var {Message, Status, User, Department, Group, MemGroup, sequelize} =  require('../../models')
 const date = require('date-and-time')
-const List = require("list");
 const help = "Tôi có thể giúp gì cho bạn?\n Nếu chưa đăng kí xin vui lòng nhắn tin cú pháp\n Mã nhân viên_Phòng ban_Leader group\n ví dụ\n 22222_Marketing_USA"
 const cannotback = "Bạn không thể về chỗ khi chưa gửi tin ra ngoài"
 const OVERTIME = "vượt quá thời gian quy định"
