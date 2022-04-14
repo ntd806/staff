@@ -16,8 +16,9 @@ function  keyBoard(){
 }
 
 function notice(data, name = ''){
-	const now = new Date()
-	return name + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'+ ' lúc '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00')
+	// const now = new Date()
+	// return name + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'+ ' lúc '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00')
+	return name + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'
 }
 
 function checkTime(action){
