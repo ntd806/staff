@@ -70,35 +70,29 @@ async function getStatus(day='', depName = ''){
             break
     }
 
-    let sql = "SELECT s.employeeId, s.action, SUM(s.total) as Total, COUNT(s.action) as time, action FROM statuses s where s.createdAt like '%"+time+"%' GROUP BY s.action"
     try {
-		var result = [];
-        const status = await sequelize.query(sql, {
-            model: Status,
-            mapToModel: true // pass true here if you have any mapped fields
-          });
+		let result = []
+		let sql = "SELECT employeeId, action, SUM(total) as Total, COUNT(action) as time, action FROM statuses where createdAt like '%"+time+"%' GROUP BY action"
+		let status = await sequelize.query(sql, {
+			model: Status,
+			mapToModel: true // pass true here if you have any mapped fields
+		})
+		let department = await Department.findOne({
+			where: {name:depName},
+		})
 
-		for(var i in status){
-		
-			let user = await User.findOne({
-				where: {employeeId:status[i]['dataValues'].employeeId},
+		if(department){
+			let users = await User.findAll({
+				where: {depId:department.id},
 			})
-            
-			let department = await Department.findOne({
-				where: {id:user.dataValues.depId},
-			})
-
-			if (depName === department.dataValues.name) {
-				let data = [
-					user,
-					department,
-					status[i]
-				]
-
-				result.push(data)
+			for(var i = 0; i < users.length; i++) {
+				for(var j = 0; j < status.length; j++){
+					if(users[i].dataValues.employeeId == status[j].dataValues.employeeId){
+						result.push([users[i], status[j]])
+					}
+				}
 			}
 		}
-		
         return result
 
     } catch (error) {
@@ -111,7 +105,7 @@ function converString(status){
 	let len = status.length
 	for (var i = 0; i < len; i++) {
 		console.log(status[i][0].dataValues.email)
-		let st = status[i][0].dataValues.email + ' Tổng thời gian: ' + status[i][2].dataValues.Total.toFixed(3) + " Đã đi " + status[i][2].dataValues.action + " Số lần: " +status[i][2].dataValues.time+"\n"
+		let st = status[i][0].email + ' Tổng thời gian: ' + status[i][1].dataValues.Total.toFixed(3) + " Đã đi " + status[i][1].dataValues.action + " Số lần: " +status[i][1].dataValues.time+"\n"
 		s += st
 	}
 
@@ -130,7 +124,7 @@ module.exports = function Chat(bot) {
 			let status = await getStatus(arr[1], arr[0])
 			let data = converString(status)
 			if (!data) {
-				data = "Không có dữ liệu"
+				data = "Không có dữ liệu hoặc không tìm thấy phòng ban nào vui lòng kiểm tra lại"
 			}
 			bot.sendMessage(msg.chat.id, data)
 		}
