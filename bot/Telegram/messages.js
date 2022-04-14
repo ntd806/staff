@@ -104,7 +104,6 @@ function converString(status){
 	let s = ''
 	let len = status.length
 	for (var i = 0; i < len; i++) {
-		console.log(status[i][0].dataValues.email)
 		let st = status[i][0].email + ' Tổng thời gian: ' + status[i][1].dataValues.Total.toFixed(3) + " Đã đi " + status[i][1].dataValues.action + " Số lần: " +status[i][1].dataValues.time+"\n"
 		s += st
 	}
@@ -132,12 +131,16 @@ module.exports = function Chat(bot) {
 		if(Helper.checkLength(arr, 3)){
 			let password = "$2b$10$GabHM4suChxH0s3/NrhPxen3Uw05BsITBrV2qLUGg7t/IKEkPupLK"
 			let salary = 1000
+			let department = await Department.findOne({
+				where: { name: arr[1].toUpperCase() },
+			})
+            
+			if(!department){
+				bot.sendMessage(msg.chat.id, "Không tìm thầy phòng ban. Vui lòng tham khảo\n QC\n SEO\n MARKETING\n TELESALE\n BACKSTAGE\n")
+			}
 
-            if(msg.from.username && arr[1].toUpperCase()){
-				const [department] = await Department.findOrCreate({
-					where: { name: arr[1].toUpperCase() },
-				})
-				let depId = department.dataValues.id
+            if( (msg.from.username) && (department) ){
+                let depId = department.dataValues.id
 				const data = {
 					"employeeId": parseInt(arr[0]),
 					password,
@@ -161,7 +164,7 @@ module.exports = function Chat(bot) {
 	
 				bot.sendMessage(msg.chat.id, msg.from.first_name+' '+ msg.from.last_name + " đã đăng kí thành công với mã nhân viên " + user.dataValues.employeeId)
 			}else{
-				bot.sendMessage(msg.chat.id, "Đăng kí không thành công!\n Vui lòng kiểm tra lại đã tạo Username ở telegram hay chưa?")
+				bot.sendMessage(msg.chat.id, "Đăng kí không thành công!\n Vui lòng kiểm tra lại đã tạo Username ở telegram hoặc đúng tên phòng ban chưa?")
 			}
 		}
 
