@@ -57,18 +57,21 @@ async function getStatus(day='', depName = ''){
 	let time = null;
 	depName = depName.toUpperCase()
 	
-    // switch (day) {
-    //     case 'today':
-    //         time = date.format(now, 'YYYY-MM-DD')
-    //         break;
-    //     case 'yesterday':
-    //         time = date.addDays(now, -1)
-	// 		time = date.format(time, 'YYYY-MM-DD')
-    //         break;
-    //     default:
-    //         time = date.format(day, 'YYYY-MM-DD')
-    //         break
-    // }
+    switch (day) {
+        case 'today':
+            time = date.format(now, 'YYYY-MM-DD')
+            break;
+        case 'yesterday':
+            time = date.addDays(now, -1)
+			time = date.format(time, 'YYYY-MM-DD')
+            break;
+        default:
+			let check = day.split('-')
+			if(check.length == 3){
+				time = date.format(day, 'YYYY-MM-DD')
+			}
+            break
+    }
 
     try {
 		let result = []
