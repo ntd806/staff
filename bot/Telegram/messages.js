@@ -16,9 +16,8 @@ function  keyBoard(){
 }
 
 function notice(data, name = ''){
-	// const now = new Date()
-	// return name + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'+ ' lúc '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00')
-	return name + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'
+	const now = new Date()
+	return name + ' ' +data.preAction+ ' ' + data.action + ' thành công\n'+ ' lúc '+date.format(now, 'YYYY/MM/DD HH:mm:ss GMT+08:00')
 }
 
 function checkTime(action){
@@ -58,18 +57,18 @@ async function getStatus(day='', depName = ''){
 	let time = null;
 	depName = depName.toUpperCase()
 	
-    switch (day) {
-        case 'today':
-            time = date.format(now, 'YYYY-MM-DD')
-            break;
-        case 'yesterday':
-            time = date.addDays(now, -1)
-			time = date.format(time, 'YYYY-MM-DD')
-            break;
-        default:
-            time = date.format(day, 'YYYY-MM-DD')
-            break
-    }
+    // switch (day) {
+    //     case 'today':
+    //         time = date.format(now, 'YYYY-MM-DD')
+    //         break;
+    //     case 'yesterday':
+    //         time = date.addDays(now, -1)
+	// 		time = date.format(time, 'YYYY-MM-DD')
+    //         break;
+    //     default:
+    //         time = date.format(day, 'YYYY-MM-DD')
+    //         break
+    // }
 
     try {
 		let result = []
