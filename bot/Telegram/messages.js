@@ -68,7 +68,7 @@ async function getStatus(day='', depName = ''){
         default:
 			let check = day.split('-')
 			if(check.length == 3){
-				time = date.format(day, 'YYYY-MM-DD')
+				time = day
 			}
             break
     }
