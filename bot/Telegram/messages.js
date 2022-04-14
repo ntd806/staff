@@ -136,7 +136,7 @@ module.exports = function Chat(bot) {
 			})
             
 			if(!department){
-				bot.sendMessage(msg.chat.id, "Không tìm thầy phòng ban. Vui lòng tham khảo\n QC\n SEO\n MARKETING\n TELESALE\n BACKSTAGE\n")
+				bot.sendMessage(msg.chat.id, "Không tìm thầy phòng ban. Vui lòng tham khảo\n SEO\n MARKETING\n TELESALE\n BACKSTAGE\n")
 			}
 
             if( (msg.from.username) && (department) ){
