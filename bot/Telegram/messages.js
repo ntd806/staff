@@ -74,29 +74,13 @@ async function getStatus(day='', depName = ''){
     }
 
     try {
-		let result = []
-		let sql = "SELECT employeeId, action, SUM(total) as Total , COUNT(id) as times FROM statuses where createdAt like '%"+time+"%' GROUP BY action , employeeId;"
+		let sql = "SELECT de.name, u.email, s.action, SUM(s.total) as Total , COUNT(s.id) as times FROM statuses s right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId where s.createdAt like '%2022-04-14%' and de.name = '"+depName+"' GROUP BY s.action , u.email ORDER BY u.email ASC"
 		let status = await sequelize.query(sql, {
 			model: Status,
 			mapToModel: true // pass true here if you have any mapped fields
 		})
-		let department = await Department.findOne({
-			where: {name:depName},
-		})
 
-		if(department){
-			let users = await User.findAll({
-				where: {depId:department.id},
-			})
-			for(var i = 0; i < users.length; i++) {
-				for(var j = 0; j < status.length; j++){
-					if(users[i].dataValues.employeeId == status[j].dataValues.employeeId){
-						result.push([users[i], status[j]])
-					}
-				}
-			}
-		}
-        return result
+		return status
 
     } catch (error) {
         console.log(error)
@@ -107,7 +91,7 @@ function converString(status){
 	let s = ''
 	let len = status.length
 	for (var i = 0; i < len; i++) {
-		let st = status[i][0].email + ' Tổng thời gian: ' + status[i][1].dataValues.Total.toFixed(3) + " Đã đi " + status[i][1].dataValues.action + " Số lần: " +status[i][1].dataValues.times +"\n"
+		let st = status[i].dataValues.email + ' Tổng thời gian: ' + status[i].dataValues.Total.toFixed(3) + " Đã đi " + status[i].dataValues.action + " Số lần: " +status[i].dataValues.times +"\n"
 		s = s + st
 		st = ''
 	}
