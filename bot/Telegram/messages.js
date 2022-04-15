@@ -111,7 +111,6 @@ function converString(status){
 		s = s + st
 		st = ''
 	}
-	console.log(s)
 
 	return s
 }
