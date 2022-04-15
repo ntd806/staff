@@ -74,7 +74,7 @@ async function getStatus(day='', depName = ''){
     }
 
     try {
-		let sql = "SELECT de.name, u.email, s.action, SUM(s.total) as Total , COUNT(s.id) as times FROM statuses s right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId where s.createdAt like '"+time+"' and de.name = '"+depName+"' GROUP BY s.action , u.email ORDER BY u.email ASC"
+		let sql = "SELECT de.name, u.email, s.action, SUM(s.total) as Total , COUNT(s.id) as times FROM statuses s right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId where s.createdAt like '%"+time+"%' and de.name = '"+depName+"' GROUP BY s.action , u.email ORDER BY u.email ASC"
 		let status = await sequelize.query(sql, {
 			model: Status,
 			mapToModel: true // pass true here if you have any mapped fields
