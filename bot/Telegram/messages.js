@@ -75,7 +75,7 @@ async function getStatus(day='', depName = ''){
 
     try {
 		let result = []
-		let sql = "SELECT employeeId, action, SUM(total) as Total, COUNT(action) as time, action FROM statuses where createdAt like '%"+time+"%' GROUP BY action"
+		let sql = "SELECT employeeId, action, SUM(total) as Total , COUNT(id) as times FROM statuses where createdAt like '%"+time+"%' GROUP BY action , employeeId;"
 		let status = await sequelize.query(sql, {
 			model: Status,
 			mapToModel: true // pass true here if you have any mapped fields
@@ -107,9 +107,11 @@ function converString(status){
 	let s = ''
 	let len = status.length
 	for (var i = 0; i < len; i++) {
-		let st = status[i][0].email + ' Tổng thời gian: ' + status[i][1].dataValues.Total.toFixed(3) + " Đã đi " + status[i][1].dataValues.action + " Số lần: " +status[i][1].dataValues.time+"\n"
-		s += st
+		let st = status[i][0].email + ' Tổng thời gian: ' + status[i][1].dataValues.Total.toFixed(3) + " Đã đi " + status[i][1].dataValues.action + " Số lần: " +status[i][1].dataValues.times +"\n"
+		s = s + st
+		st = ''
 	}
+	console.log(s)
 
 	return s
 }
