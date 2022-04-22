@@ -25,16 +25,16 @@ function checkTime(action){
 
 	switch(action){
 		case 'EAT':
-			time = 1805000
+			time = 1810000
 		    break
 		case 'SMK':
-			time = 605000
+			time = 610000
 			break
 	    case 'DWC':
-			time = 905000
+			time = 910000
 			break
 		case 'WC':
-			time = 305000
+			time = 310000
 			break
 		default:
 		    break
