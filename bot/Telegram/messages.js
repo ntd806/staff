@@ -6,6 +6,10 @@ const help = "Tôi có thể giúp gì cho bạn?\n Nếu chưa đăng kí xin v
 const cannotback = "Bạn không thể về chỗ khi chưa gửi tin ra ngoài"
 const OVERTIME = "vượt quá thời gian quy định"
 const confirmID = "Không tìm thấy mã nhân viên. Vui lòng kiểm tra lại\n Nếu chưa đăng kí xin vui lòng nhắn tin cú pháp\n Mã nhân viên_Phòng ban_Leader group\n ví dụ\n 22222_Marketing_US"
+const TIME_EAT = 1810000 // 30 minutes
+const TIME_SMK = 610000  // 10 minutes
+const TIME_DWC = 910000 // 15 minutes
+const TIME_WC = 310000 // 5 minutes
 
 function  keyBoard(){
 	return {
@@ -25,16 +29,16 @@ function checkTime(action){
 
 	switch(action){
 		case 'EAT':
-			time = 1810000
+			time = TIME_EAT
 		    break
 		case 'SMK':
-			time = 610000
+			time = TIME_SMK
 			break
 	    case 'DWC':
-			time = 910000
+			time = TIME_DWC
 			break
 		case 'WC':
-			time = 310000
+			time = TIME_WC
 			break
 		default:
 		    break
@@ -51,30 +55,22 @@ async function getUserName(email){
 	return user
 }
 
-
 async function getStatus(day='', depName = ''){
-    const now = new Date();
-	let time = null;
+    
+	let time = convertTime(day)
 	depName = depName.toUpperCase()
-	
-    switch (day) {
-        case 'today':
-            time = date.format(now, 'YYYY-MM-DD')
-            break;
-        case 'yesterday':
-            time = date.addDays(now, -1)
-			time = date.format(time, 'YYYY-MM-DD')
-            break;
-        default:
-			let check = day.split('-')
-			if(check.length == 3){
-				time = day
-			}
-            break
-    }
+	let select = "SELECT de.name, u.email, s.action, SUM(s.total) as Total , COUNT(s.id) as times"
+	let from = "FROM statuses s"
+	let join = "right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId"
+	let where = "where s.createdAt like '%"+time+"%' and de.name = '"+depName+"'"
+	let groupBy = "GROUP BY s.action , u.email ORDER BY u.email ASC"
+	let sql = select +from + join + where + groupBy
+    
+	return getStatistics(sql)
+}
 
-    try {
-		let sql = "SELECT de.name, u.email, s.action, SUM(s.total) as Total , COUNT(s.id) as times FROM statuses s right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId where s.createdAt like '%"+time+"%' and de.name = '"+depName+"' GROUP BY s.action , u.email ORDER BY u.email ASC"
+async function getStatistics(sql = ''){
+	try {
 		let status = await sequelize.query(sql, {
 			model: Status,
 			mapToModel: true // pass true here if you have any mapped fields
@@ -87,13 +83,61 @@ async function getStatus(day='', depName = ''){
     }
 }
 
+async function getOverTime(depName, start, end, action, total){
+	let s = convertTime(start)
+	let e = convertTime(end)
+
+	depName = depName.toUpperCase()
+	let select = "SELECT de.name, u.email, s.action, sum(s.total - "+total+" ) as overtime"
+	let from = "FROM statuses s"
+	let join = "right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId"
+	let where = "where s.createdAt >= '"+s+"' and s.createdAt <= '"+e+"' and de.name = '"+depName+"' and s.action = '"+action+"' and s.total > "+total
+	let groupBy = "GROUP BY s.action , u.email ORDER BY u.email ASC"
+	let sql = select +from + join + where + groupBy
+
+	return getStatistics(sql)
+}
+
+function convertTime(day){
+    const now = new Date();
+	switch (day) {
+        case 'today':
+            time = date.format(now, 'YYYY-MM-DD')
+            break;
+        default:
+			let check = day.split('-')
+			if(check.length == 3){
+				time = day
+			}
+            break
+    }
+
+	return day
+}
+
 function converString(status){
 	let s = ''
-	let len = status.length
-	for (var i = 0; i < len; i++) {
-		let st = status[i].dataValues.email + ' Tổng thời gian: ' + status[i].dataValues.Total.toFixed(3) + " Đã đi " + status[i].dataValues.action + " Số lần: " +status[i].dataValues.times +"\n"
-		s = s + st
-		st = ''
+	if(status){
+	    let len = status.length
+		for (var i = 0; i < len; i++) {
+			let st = status[i].dataValues.email + ' Tổng thời gian: ' + status[i].dataValues.Total.toFixed(3) + " Đã đi " + status[i].dataValues.action + " Số lần: " +status[i].dataValues.times +"\n"
+			s = s + st
+			st = ''
+		}
+    }
+	return s
+}
+
+function stringOvertime(status){
+	let s = ''
+
+	if(status){
+		let len = status.length
+		for (var i = 0; i < len; i++) {
+			let st = status[i].dataValues.email + ' Tổng thời gian vượt quá: ' + status[i].dataValues.overtime.toFixed(3) + " Đã đi " + status[i].dataValues.action +"\n"
+			s = s + st
+			st = ''
+		}
 	}
 
 	return s
@@ -107,12 +151,28 @@ module.exports = function Chat(bot) {
 			bot.sendMessage(msg.chat.id, help, keyBoard())
 		}
 
+		if(Helper.checkLength(arr, 4)){
+			let EATS = await getOverTime(arr[0], arr[2], arr[3], 'EAT', TIME_EAT)
+			let SMKS = await getOverTime(arr[0], arr[2], arr[3], 'SMK', TIME_SMK)
+			let DWCS = await getOverTime(arr[0], arr[2], arr[3], 'DWC', TIME_DWC)
+			let WCS = await getOverTime(arr[0], arr[2], arr[3], 'WC', TIME_WC)
+			stringOvertime(EATS)
+
+			let data = stringOvertime(EATS) + stringOvertime(SMKS) + stringOvertime(DWCS) + stringOvertime(WCS)
+			if (!data) {
+				data = "Không có dữ liệu hoặc không tìm thấy phòng ban nào vui lòng kiểm tra lại"
+			}
+
+			bot.sendMessage(msg.chat.id, data)
+		}
+
 		if(Helper.checkLength(arr, 2)){
 			let status = await getStatus(arr[1], arr[0])
 			let data = converString(status)
 			if (!data) {
 				data = "Không có dữ liệu hoặc không tìm thấy phòng ban nào vui lòng kiểm tra lại"
 			}
+			
 			bot.sendMessage(msg.chat.id, data)
 		}
         
@@ -192,13 +252,6 @@ module.exports = function Chat(bot) {
 									})
 
 								if(MSG) {
-									MSG.update({status:OPTIONS.DONE})
-									const data = {
-										"employeeId": checkin.employeeId,
-										"action": checkin.action,
-										"total": ((time/1000)/60)
-									}
-									const status = Status.create(data)
 									bot.sendMessage(msg.chat.id,  msg.from.first_name+' '+ msg.from.last_name + "\nĐi "+checkin.action +" " + OVERTIME)
 									clearTimeout(myTimeout)
 								}
