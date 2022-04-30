@@ -100,7 +100,7 @@ async function getOverTime(depName, start, end, action, total){
 
 function convertTime(day){
 	const now = new Date()
-	if (day === 'day') {
+	if (day === 'today') {
 		day = date.format(now, 'YYYY-MM-DD')
 
 		return day
