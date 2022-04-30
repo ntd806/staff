@@ -87,8 +87,7 @@ async function getStatistics(sql = ''){
     }
 }
 
-async function getOverTime(depName, start, end, action, total){
-	let s = convertTime(start)
+async function getOverTime(depName, end, action, total){
 	let e = convertTime(end)
 
 	depName = depName.toUpperCase()
@@ -156,11 +155,10 @@ module.exports = function Chat(bot) {
 		}
 
 		if(Helper.checkLength(arr, 4)){
-			let EATS = await getOverTime(arr[0], arr[2], arr[3], 'EAT', timeEat)
-			let SMKS = await getOverTime(arr[0], arr[2], arr[3], 'SMK', timeSMK)
-			let DWCS = await getOverTime(arr[0], arr[2], arr[3], 'DWC', timeDWC)
-			let WCS = await getOverTime(arr[0], arr[2], arr[3], 'WC', timeWC)
-			
+			let EATS = await getOverTime(arr[0], arr[3], 'EAT', timeEat)
+			let SMKS = await getOverTime(arr[0], arr[3], 'SMK', timeSMK)
+			let DWCS = await getOverTime(arr[0], arr[3], 'DWC', timeDWC)
+			let WCS = await getOverTime(arr[0], arr[3], 'WC', timeWC)
 
 			let data = stringOvertime(EATS) + stringOvertime(SMKS) + stringOvertime(DWCS) + stringOvertime(WCS)
 			if (!data) {
