@@ -153,7 +153,6 @@ module.exports = function Chat(bot) {
 			let SMKS = await getOverTime(arr[0], arr[2], arr[3], 'SMK', TIME_SMK)
 			let DWCS = await getOverTime(arr[0], arr[2], arr[3], 'DWC', TIME_DWC)
 			let WCS = await getOverTime(arr[0], arr[2], arr[3], 'WC', TIME_WC)
-			stringOvertime(EATS)
 
 			let data = stringOvertime(EATS) + stringOvertime(SMKS) + stringOvertime(DWCS) + stringOvertime(WCS)
 			if (!data) {
