@@ -10,6 +10,10 @@ const TIME_EAT = 1810000 // 30 minutes
 const TIME_SMK = 610000  // 10 minutes
 const TIME_DWC = 910000 // 15 minutes
 const TIME_WC = 310000 // 5 minutes
+const timeEat = ((TIME_EAT/1000)/60)
+const timeSMK = ((TIME_SMK/1000)/60)
+const timeDWC = ((TIME_DWC/1000)/60)
+const timeWC = ((TIME_WC/1000)/60)
 
 function  keyBoard(){
 	return {
@@ -88,11 +92,11 @@ async function getOverTime(depName, start, end, action, total){
 	let e = convertTime(end)
 
 	depName = depName.toUpperCase()
-	let select = `SELECT de.name, u.email, s.action, sum(s.total - ${total} ) as overtime`
-	let from = `FROM statuses s`
-	let join = `right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId`
-	let where = `where s.createdAt >= '${s}' and s.createdAt <= '${e}' and de.name = '${depName}' and s.action = '${action}' and s.total > ${total}`
-	let groupBy = `GROUP BY s.action , u.email ORDER BY u.email ASC`
+	let select = `SELECT de.name, u.email, s.action, s.total - ${total} as overtime`
+	let from = ` FROM statuses s`
+	let join = ` right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId`
+	let where = ` where s.createdAt like '%${e}%' and de.name = '${depName}' and s.action = '${action}' and s.total > ${total}`
+	let groupBy = ` ORDER BY u.email ASC`
 	let sql = select +from + join + where + groupBy
 
 	return getStatistics(sql)
@@ -131,9 +135,12 @@ function stringOvertime(status){
 	if(status){
 		let len = status.length
 		for (var i = 0; i < len; i++) {
-			let st = status[i].dataValues.email + ' Tổng thời gian vượt quá: ' + status[i].dataValues.overtime.toFixed(3) + " Đã đi " + status[i].dataValues.action +"\n"
-			s = s + st
-			st = ''
+			let overtime = status[i].dataValues.overtime.toFixed(3)
+			if (overtime > 0) {
+				let st = status[i].dataValues.email + ' Tổng thời gian vượt quá: ' + overtime + " Đã đi " + status[i].dataValues.action +"\n"
+				s = s + st
+				st = ''
+			}
 		}
 	}
 
@@ -149,10 +156,11 @@ module.exports = function Chat(bot) {
 		}
 
 		if(Helper.checkLength(arr, 4)){
-			let EATS = await getOverTime(arr[0], arr[2], arr[3], 'EAT', TIME_EAT)
-			let SMKS = await getOverTime(arr[0], arr[2], arr[3], 'SMK', TIME_SMK)
-			let DWCS = await getOverTime(arr[0], arr[2], arr[3], 'DWC', TIME_DWC)
-			let WCS = await getOverTime(arr[0], arr[2], arr[3], 'WC', TIME_WC)
+			let EATS = await getOverTime(arr[0], arr[2], arr[3], 'EAT', timeEat)
+			let SMKS = await getOverTime(arr[0], arr[2], arr[3], 'SMK', timeSMK)
+			let DWCS = await getOverTime(arr[0], arr[2], arr[3], 'DWC', timeDWC)
+			let WCS = await getOverTime(arr[0], arr[2], arr[3], 'WC', timeWC)
+			
 
 			let data = stringOvertime(EATS) + stringOvertime(SMKS) + stringOvertime(DWCS) + stringOvertime(WCS)
 			if (!data) {
