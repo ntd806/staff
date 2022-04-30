@@ -99,20 +99,17 @@ async function getOverTime(depName, start, end, action, total){
 }
 
 function convertTime(day){
-    const now = new Date();
-	switch (day) {
-        case 'today':
-            time = date.format(now, 'YYYY-MM-DD')
-            break;
-        default:
-			let check = day.split('-')
-			if(check.length == 3){
-				time = day
-			}
-            break
-    }
+	const now = new Date()
+	if (day === 'day') {
+		day = date.format(now, 'YYYY-MM-DD')
 
-	return day
+		return day
+	}
+
+	let check = day.split('-')
+	if(check.length == 3){
+		return day
+	}
 }
 
 function converString(status){
@@ -147,7 +144,7 @@ module.exports = function Chat(bot) {
 	bot.on('message', async (msg) => {
 		let arr = Helper.checkSyntax(msg.text, '_')
 
-        if(Helper.checkLength(arr, 3) == false && Helper.checkLength(arr, 1) == false && Helper.checkLength(arr, 2) == false) {
+        if(Helper.checkLength(arr, 3) == false && Helper.checkLength(arr, 1) == false && Helper.checkLength(arr, 2) == false && Helper.checkLength(arr, 4) == false) {
 			bot.sendMessage(msg.chat.id, help, keyBoard())
 		}
 
