@@ -88,11 +88,11 @@ async function getOverTime(depName, start, end, action, total){
 	let e = convertTime(end)
 
 	depName = depName.toUpperCase()
-	let select = "SELECT de.name, u.email, s.action, sum(s.total - "+total+" ) as overtime"
-	let from = "FROM statuses s"
-	let join = "right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId"
-	let where = "where s.createdAt >= '"+s+"' and s.createdAt <= '"+e+"' and de.name = '"+depName+"' and s.action = '"+action+"' and s.total > "+total
-	let groupBy = "GROUP BY s.action , u.email ORDER BY u.email ASC"
+	let select = `SELECT de.name, u.email, s.action, sum(s.total - ${total} ) as overtime`
+	let from = `FROM statuses s`
+	let join = `right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId`
+	let where = `where s.createdAt >= '${s}' and s.createdAt <= '${e}' and de.name = '${depName}' and s.action = '${action}' and s.total > ${total}`
+	let groupBy = `GROUP BY s.action , u.email ORDER BY u.email ASC`
 	let sql = select +from + join + where + groupBy
 
 	return getStatistics(sql)
