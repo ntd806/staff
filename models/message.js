@@ -1,5 +1,5 @@
 'use strict'
-const {OPTIONS} =  require('../const/const')
+const { OPTIONS } = require('../const/const')
 
 const {
   Model
@@ -11,13 +11,13 @@ module.exports = (sequelize, DataTypes) => {
      * This method is not a part of Sequelize lifecycle.
      * The `models/index` file will call this method automatically.
      */
-    static associate({ User }) {
+    static associate ({ User }) {
       // define association here
       // userId
       this.belongsTo(User, { foreignKey: 'employeeId', as: 'user' })
     }
 
-    toJSON() {
+    toJSON () {
       return { ...this.get(), id: undefined, employeeId: undefined }
     }
   }
@@ -27,16 +27,16 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         notNull: { msg: 'Message must have a note' },
-        notEmpty: { msg: 'note must not be empty' },
-      },
+        notEmpty: { msg: 'note must not be empty' }
+      }
     },
     preAction: {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
         notNull: { msg: 'Message must have a preAction' },
-        notEmpty: { msg: 'preAction must not be empty' },
-      },
+        notEmpty: { msg: 'preAction must not be empty' }
+      }
     },
 
     action: {
@@ -44,16 +44,16 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         notNull: { msg: 'Message must have a action' },
-        notEmpty: { msg: 'action must not be empty' },
-      },
+        notEmpty: { msg: 'action must not be empty' }
+      }
     },
     employeeId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
         notNull: { msg: 'Message must have a employeeId' },
-        notEmpty: { msg: 'employeeId must not be empty' },
-      },
+        notEmpty: { msg: 'employeeId must not be empty' }
+      }
     },
     status: {
       type: DataTypes.INTEGER,
@@ -61,13 +61,13 @@ module.exports = (sequelize, DataTypes) => {
       defaultValue: OPTIONS.WAIT,
       validate: {
         notNull: { msg: 'Message must have a status' },
-        notEmpty: { msg: 'status must not be empty' },
-      },
-    },
+        notEmpty: { msg: 'status must not be empty' }
+      }
+    }
   }, {
     sequelize,
     tableName: 'messages',
-    modelName: 'Message',
+    modelName: 'Message'
   })
   return Message
 }

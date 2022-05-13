@@ -1,8 +1,7 @@
-'use strict';
-const {OPTIONS} =  require('../const/const')
+'use strict'
 
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  async up (queryInterface, Sequelize) {
     await queryInterface.createTable('Statuses', {
       id: {
         allowNull: false,
@@ -12,14 +11,14 @@ module.exports = {
       },
       employeeId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: false
       },
       action: {
         type: Sequelize.STRING
       },
       total: {
         type: Sequelize.FLOAT,
-        allowNull: false,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,
@@ -29,9 +28,9 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE
       }
-    });
+    })
   },
-  async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable('Statuses');
+  async down (queryInterface, Sequelize) {
+    await queryInterface.dropTable('Statuses')
   }
-};
+}

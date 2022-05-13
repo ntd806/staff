@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "nodemon ./bin/www",
+    "lint": "eslint --fix --ext .js,.jsx ."
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
@@ -29,6 +30,13 @@
     "swagger-ui-express": "^4.3.0"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.23.0",
+    "@typescript-eslint/parser": "^5.23.0",
+    "eslint": "^8.15.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-n": "^15.2.0",
+    "eslint-plugin-promise": "^6.0.0",
     "sequelize-cli": "^6.4.1"
   }
 }

@@ -1,6 +1,6 @@
 'use strict'
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  async up (queryInterface, Sequelize) {
     await queryInterface.createTable('Messages', {
       id: {
         allowNull: false,
@@ -10,22 +10,23 @@ module.exports = {
       },
       employeeId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
-      }, status: {
+        allowNull: false
+      },
+      status: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: false
       },
       action: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: true
       },
       preAction: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: true
       },
       note: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: true
       },
       createdAt: {
         allowNull: false,
@@ -39,7 +40,7 @@ module.exports = {
       }
     })
   },
-  async down(queryInterface, Sequelize) {
+  async down (queryInterface, Sequelize) {
     await queryInterface.dropTable('Messages')
   }
 }

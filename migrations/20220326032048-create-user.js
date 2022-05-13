@@ -1,8 +1,8 @@
 'use strict'
-var {AUTHORITY} =  require('../const/const')
+const { AUTHORITY } = require('../const/const')
 
 module.exports = {
-  async up(queryInterface, Sequelize) {
+  async up (queryInterface, Sequelize) {
     await queryInterface.createTable('Users', {
       id: {
         allowNull: false,
@@ -16,17 +16,17 @@ module.exports = {
       lastName: {
         type: Sequelize.STRING
       },
-      employeeId:{
+      employeeId: {
         type: Sequelize.DOUBLE,
-        allowNull: false,
+        allowNull: false
       },
-      depId:{
+      depId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: false
       },
-      salary:{
+      salary: {
         type: Sequelize.INTEGER,
-        allowNull: false,
+        allowNull: false
       },
       is_block: {
         type: Sequelize.BOOLEAN,
@@ -45,35 +45,35 @@ module.exports = {
       },
       phone: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: true
       },
       address: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: true
       },
       email: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: true
       },
       password: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: false
       },
       langue: {
         type: Sequelize.STRING,
-        allowNull: true,
+        allowNull: true
       },
       birthday: {
         type: Sequelize.DATE,
-        allowNull: true,
+        allowNull: true
       },
       onboard: {
         type: Sequelize.DATE,
-        allowNull: true,
+        allowNull: true
       },
       quit: {
         type: Sequelize.DATE,
-        allowNull: true,
+        allowNull: true
       },
       createdAt: {
         allowNull: false,
@@ -87,7 +87,7 @@ module.exports = {
       }
     })
   },
-  async down(queryInterface, Sequelize) {
+  async down (queryInterface, Sequelize) {
     await queryInterface.dropTable('Users')
   }
 }

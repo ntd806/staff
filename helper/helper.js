@@ -1,26 +1,24 @@
-function checkSyntax(message, symbol){
+function checkSyntax (message, symbol) {
+  if (!message) {
+    return false
+  }
 
-    if (!message) {
-        return false
-    }
-    
-    return message.split(symbol).filter(Boolean)
+  return message.split(symbol).filter(Boolean)
 }
 
-function checkLength(arr, number){
-    if(!arr) {
-        return false
-    }
+function checkLength (arr, number) {
+  if (!arr) {
+    return false
+  }
+  const b = new Number(arr.length)
+  if (number != b || number > b || number < b) {
+    return false
+  }
 
-    var b = new Number(arr.length)
-    if(number != b || number > b || number < b){
-        return false
-    }
-
-    return true
+  return true
 }
 
 module.exports = {
-    checkSyntax,
-    checkLength
+  checkSyntax,
+  checkLength
 }
