@@ -5,8 +5,8 @@ const cookieParser = require('cookie-parser')
 const logger = require('morgan')
 require('dotenv').config()
 const TelegramBot = require('node-telegram-bot-api')
-// const token = process.env.TELEGRAM_KEY
-const token = '5022072043:AAGdXAwSqVD2kFPjihzJix6sQlobtwglMxw'
+const token = process.env.TELEGRAM_KEY
+// const token = '5022072043:AAGdXAwSqVD2kFPjihzJix6sQlobtwglMxw'
 const bot = new TelegramBot(token, { polling: true })
 require('./bot/Telegram/messages')(bot) // Telegram Bot
 
