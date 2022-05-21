@@ -233,8 +233,9 @@ module.exports = function Chat (bot) {
         case OPTIONS.CHECK_IN:
           try {
             if (!user) { bot.sendMessage(msg.chat.id, confirmID) } else {
+              const employeeId = user.dataValues.employeeId
               const checkin = {
-                employeeId: user.dataValues.employeeId,
+                employeeId,
                 note: 'no note',
                 preAction: 'CHECKIN',
                 action: actions[1].toUpperCase(),
@@ -243,18 +244,19 @@ module.exports = function Chat (bot) {
               await Message.create(checkin)
               bot.sendMessage(msg.chat.id, notice(checkin, msg.from.first_name + ' ' + msg.from.last_name))
               const myTimeout = setTimeout(async () => {
-                const MSG = await Message.findOne({
+                const checkInMSG = await Message.findOne({
                   offset: 0,
                   limit: 1,
-                  where: { employeeId: checkin.employeeId, preAction: 'CHECKIN', action: checkin.action, status: OPTIONS.WAIT },
+                  where: checkin,
                   order: [
                     ['createdAt', 'DESC']
                   ]
                 })
-                if (MSG) {
+                if (!checkInMSG) {
+                  clearTimeout(myTimeout)
+                } else {
                   bot.sendMessage(msg.chat.id, msg.from.first_name + ' ' + msg.from.last_name + '\nĐi ' + checkin.action + ' ' + OVERTIME)
                 }
-                clearTimeout(myTimeout)
               }, time)
             }
           } catch (err) {
@@ -273,7 +275,7 @@ module.exports = function Chat (bot) {
                 status: OPTIONS.DONE
               }
               const checkOut = await Message.create(checkout)
-              const MSG = await Message.findOne({
+              const checkOutMSG = await Message.findOne({
                 offset: 0,
                 limit: 1,
                 where: { employeeId: checkout.employeeId, preAction: 'CHECKIN', action: checkout.action, status: OPTIONS.WAIT },
@@ -282,11 +284,14 @@ module.exports = function Chat (bot) {
                 ]
               })
 
-              if (!MSG) {
+              if (!checkOutMSG) {
                 bot.sendMessage(msg.chat.id, cannotback)
               } else {
-                MSG.update({ status: OPTIONS.DONE })
-                const yesterday = new Date(MSG.createdAt)
+                await Message.update(
+                  { status: OPTIONS.DONE },
+                  { where: { preAction: 'CHECKIN' } }
+                )
+                const yesterday = new Date(checkOutMSG.createdAt)
                 const today = new Date(checkOut.createdAt)
                 const consume = date.subtract(today, yesterday).toMinutes()
                 const data = {
