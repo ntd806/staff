@@ -299,7 +299,7 @@ module.exports = function Chat (bot) {
                   action: checkout.action,
                   total: consume.toFixed(3)
                 }
-                Status.create(data)
+                await Status.create(data)
                 bot.sendMessage(msg.chat.id, notice(checkout, msg.from.first_name + ' ' + msg.from.last_name) + '\n Thời gian: ' + consume.toFixed(3))
               }
             }
