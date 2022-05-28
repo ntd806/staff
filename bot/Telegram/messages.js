@@ -89,7 +89,7 @@ async function getOverTime (depName, end, action, total) {
   const e = convertTime(end)
 
   depName = depName.toUpperCase()
-  const select = `SELECT de.name, u.email, s.action, s.total - ${total} as overtime`
+  const select = `SELECT u.email, s.action, s.createdAt, s.total - ${total} as overtime`
   const from = ' FROM statuses s'
   const join = ' right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId'
   const where = ` where s.createdAt like '%${e}%' and de.name = '${depName}' and s.action = '${action}' and s.total > ${total}`
@@ -134,9 +134,8 @@ function stringOvertime (status) {
     for (let i = 0; i < len; i++) {
       const overtime = status[i].dataValues.overtime.toFixed(3)
       if (overtime > 0) {
-        let st = status[i].dataValues.email + ' Tổng thời gian vượt quá: ' + overtime + ' Đã đi ' + status[i].dataValues.action + '\n'
-        s = s + st
-        st = ''
+        let st = status[i].dataValues.email + ' Tổng thời gian vượt quá: ' + overtime + ' Đã đi ' + status[i].dataValues.action + ' thời gian ' +status[i].dataValues.createdAt+'\n'
+        s +=st
       }
     }
   }
@@ -153,7 +152,8 @@ module.exports = function Chat (bot) {
     }
 
     if (Helper.checkLength(arr, 4)) {
-      const EATS = await getOverTime(arr[0], arr[3], 'EAT', timeEat)
+      const EATS = await getOverTime(arr[0], arr[3], 'EAT', 
+      )
       const SMKS = await getOverTime(arr[0], arr[3], 'SMK', timeSMK)
       const DWCS = await getOverTime(arr[0], arr[3], 'DWC', timeDWC)
       const WCS = await getOverTime(arr[0], arr[3], 'WC', timeWC)
