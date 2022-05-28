@@ -10,10 +10,10 @@ const TIME_EAT = 1810000 // 30 minutes
 const TIME_SMK = 610000 // 10 minutes
 const TIME_DWC = 910000 // 15 minutes
 const TIME_WC = 310000 // 5 minutes
-const timeEat = ((TIME_EAT / 1000) / 60)
-const timeSMK = ((TIME_SMK / 1000) / 60)
-const timeDWC = ((TIME_DWC / 1000) / 60)
-const timeWC = ((TIME_WC / 1000) / 60)
+const timeEat = 30.1666666667
+const timeSMK = 10.16666666667
+const timeDWC = 15.16666666667
+const timeWC = 5.16666666667
 
 function keyBoard () {
   return {
@@ -62,11 +62,11 @@ async function getUserName (email) {
 async function getStatus (day = '', depName = '') {
   const time = convertTime(day)
   depName = depName.toUpperCase()
-  const select = 'SELECT de.name, u.email, s.action, SUM(s.total) as Total , COUNT(s.id) as times'
-  const from = 'FROM statuses s'
-  const join = 'right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId'
-  const where = "where s.createdAt like '%" + time + "%' and de.name = '" + depName + "'"
-  const groupBy = 'GROUP BY s.action , u.email ORDER BY u.email ASC'
+  const select = ' SELECT de.name, u.email, s.action, SUM(s.total) as Total , COUNT(s.id) as times'
+  const from = ' FROM statuses s'
+  const join = ' right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId'
+  const where = " where s.createdAt like '%" + time + "%' and de.name = '" + depName + "'"
+  const groupBy = ' GROUP BY s.action , u.email ORDER BY u.email ASC'
   const sql = select + from + join + where + groupBy
 
   return getStatistics(sql)
@@ -89,11 +89,11 @@ async function getOverTime (depName, end, action, total) {
   const e = convertTime(end)
 
   depName = depName.toUpperCase()
-  const select = `SELECT u.email, s.action, s.createdAt, s.total - ${total} as overtime`
-  const from = ' FROM statuses s'
-  const join = ' right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId'
-  const where = ` where s.createdAt like '%${e}%' and de.name = '${depName}' and s.action = '${action}' and s.total > ${total}`
-  const groupBy = ' ORDER BY u.email ASC'
+  const select = `SELECT u.email, s.action, s.createdAt, s.total - ${total} as overtime `
+  const from = ' FROM statuses s '
+  const join = ' right JOIN users u on u.employeeId = s.employeeId right JOIN departments de ON de.id = u.depId '
+  const where = ` where s.createdAt like '%${e}%' and de.name = '${depName}' and s.action = '${action}' and s.total > ${total} `
+  const groupBy = ' ORDER BY u.email ASC '
   const sql = select + from + join + where + groupBy
 
   return getStatistics(sql)
@@ -134,8 +134,8 @@ function stringOvertime (status) {
     for (let i = 0; i < len; i++) {
       const overtime = status[i].dataValues.overtime.toFixed(3)
       if (overtime > 0) {
-        let st = status[i].dataValues.email + ' Tổng thời gian vượt quá: ' + overtime + ' Đã đi ' + status[i].dataValues.action + ' thời gian ' +status[i].dataValues.createdAt+'\n'
-        s +=st
+        const st = status[i].dataValues.email + ' Tổng thời gian vượt quá: ' + overtime + ' Đã đi ' + status[i].dataValues.action + ' thời gian ' + status[i].dataValues.createdAt + '\n'
+        s += st
       }
     }
   }
@@ -152,8 +152,7 @@ module.exports = function Chat (bot) {
     }
 
     if (Helper.checkLength(arr, 4)) {
-      const EATS = await getOverTime(arr[0], arr[3], 'EAT', 
-      )
+      const EATS = await getOverTime(arr[0], arr[3], 'EAT', timeEat)
       const SMKS = await getOverTime(arr[0], arr[3], 'SMK', timeSMK)
       const DWCS = await getOverTime(arr[0], arr[3], 'DWC', timeDWC)
       const WCS = await getOverTime(arr[0], arr[3], 'WC', timeWC)
@@ -179,40 +178,44 @@ module.exports = function Chat (bot) {
     if (Helper.checkLength(arr, 3)) {
       const password = '$2b$10$GabHM4suChxH0s3/NrhPxen3Uw05BsITBrV2qLUGg7t/IKEkPupLK'
       const salary = 1000
-      const department = await Department.findOne({
-        where: { name: arr[1].toUpperCase() }
-      })
+      if (arr[0] === 'undefined' || arr[1] === 'undefined' || arr[2] === 'undefined') {
+        bot.sendMessage(msg.chat.id, 'Không đúng cú pháp vui lòng kiểm tra lại')
+      } else {
+        const department = await Department.findOne({
+          where: { name: arr[1].toUpperCase() }
+        })
 
-      if (!department) {
-        bot.sendMessage(msg.chat.id, 'Không tìm thầy phòng ban. Vui lòng tham khảo\n SEO\n MARKETING\n TELESALE\n BACKSTAGE\n')
-      }
-
-      if ((msg.from.username) && (department)) {
-        const depId = department.dataValues.id
-        const data = {
-          employeeId: parseInt(arr[0]),
-          password,
-          role: 'EMPLOYEE',
-          depId,
-          salary,
-          email: msg.from.username
+        if (!department) {
+          bot.sendMessage(msg.chat.id, 'Không tìm thầy phòng ban. Vui lòng tham khảo\n SEO\n MARKETING\n TELESALE\n BACKSTAGE\n')
         }
 
-        const [user] = await User.findOrCreate({
-          where: data
-        })
+        if ((msg.from.username) && (department)) {
+          const depId = department.dataValues.id
+          const data = {
+            employeeId: parseInt(arr[0]),
+            password,
+            role: 'EMPLOYEE',
+            depId,
+            salary,
+            email: msg.from.username
+          }
 
-        const [group] = await Group.findOrCreate({
-          where: { name: arr[2].toUpperCase() }
-        })
+          const [user] = await User.findOrCreate({
+            where: data
+          })
 
-        await MemGroup.findOrCreate({
-          where: { employeeId: user.dataValues.employeeId, groupId: group.dataValues.id }
-        })
+          const [group] = await Group.findOrCreate({
+            where: { name: arr[2].toUpperCase() }
+          })
 
-        bot.sendMessage(msg.chat.id, msg.from.first_name + ' ' + msg.from.last_name + ' đã đăng kí thành công với mã nhân viên ' + user.dataValues.employeeId)
-      } else {
-        bot.sendMessage(msg.chat.id, 'Đăng kí không thành công!\n Vui lòng kiểm tra lại đã tạo Username ở telegram hoặc đúng tên phòng ban chưa?')
+          await MemGroup.findOrCreate({
+            where: { employeeId: user.dataValues.employeeId, groupId: group.dataValues.id }
+          })
+
+          bot.sendMessage(msg.chat.id, msg.from.first_name + ' ' + msg.from.last_name + ' đã đăng kí thành công với mã nhân viên ' + user.dataValues.employeeId)
+        } else {
+          bot.sendMessage(msg.chat.id, 'Đăng kí không thành công!\n Vui lòng kiểm tra lại đã tạo Username ở telegram hoặc đúng tên phòng ban chưa?')
+        }
       }
     }
 
