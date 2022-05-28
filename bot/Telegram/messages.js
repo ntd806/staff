@@ -286,13 +286,11 @@ module.exports = function Chat (bot) {
                 ]
               })
 
-              if (!checkOutMSG) {
-                bot.sendMessage(msg.chat.id, cannotback)
-              } else {
+              if (checkOutMSG) {
                 const checkOut = await Message.create(checkout)
                 await Message.update(
                   { status: OPTIONS.DONE },
-                  { where: { preAction: 'CHECKIN', action: checkout.action } }
+                  { where: { employeeId: checkout.employeeId, preAction: 'CHECKIN', action: checkout.action } }
                 )
                 const yesterday = new Date(checkOutMSG.createdAt)
                 const today = new Date(checkOut.createdAt)
@@ -304,6 +302,8 @@ module.exports = function Chat (bot) {
                 }
                 await Status.create(data)
                 bot.sendMessage(msg.chat.id, notice(checkout, msg.from.first_name + ' ' + msg.from.last_name) + '\n Thời gian: ' + consume.toFixed(3))
+              } else {
+                bot.sendMessage(msg.chat.id, cannotback)
               }
             }
           } catch (err) {
